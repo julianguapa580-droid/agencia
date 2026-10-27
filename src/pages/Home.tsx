@@ -24,8 +24,11 @@ export default function Home() {
             Viajes inolvidables, experiencias únicas. Tu aventura comienza aquí.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/paquetes" className="bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all">
-              Ver Paquetes
+            <Link to="/destinos" className="bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all">
+              Explorar Destinos
+            </Link>
+            <Link to="/cotizador" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-900 transition-all">
+              Cotizar Viaje
             </Link>
             <Link to="/reservar" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-900 transition-all">
               Reservar Ahora
@@ -69,12 +72,16 @@ export default function Home() {
       {/* Services */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">¿Por qué elegirnos?</h2>
+            <p className="text-gray-600 text-lg">Tu viaje perfecto con la mejor experiencia</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { icon: Globe, title: 'Destinos Exclusivos', desc: 'Más de 100 destinos en todo el mundo', color: 'from-blue-500 to-blue-600' },
-              { icon: Shield, title: 'Viaje Seguro', desc: 'Seguro de viaje incluido en todos los paquetes', color: 'from-green-500 to-green-600' },
-              { icon: Clock, title: '24/7 Soporte', desc: 'Atención al cliente las 24 horas del día', color: 'from-purple-500 to-purple-600' },
-              { icon: Award, title: 'Mejor Precio', desc: 'Garantía del mejor precio del mercado', color: 'from-orange-500 to-orange-600' },
+              { icon: Globe, title: '100+ Destinos', desc: 'Explora el mundo con nosotros', color: 'from-blue-500 to-blue-600' },
+              { icon: Award, title: 'Mejor Precio', desc: 'Garantía del mejor precio', color: 'from-orange-500 to-orange-600' },
+              { icon: Shield, title: 'Viaje Seguro', desc: 'Seguro incluido en todos los paquetes', color: 'from-green-500 to-green-600' },
+              { icon: Clock, title: 'Soporte 24/7', desc: 'Atención cuando la necesites', color: 'from-purple-500 to-purple-600' },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow text-center group">
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
@@ -218,10 +225,13 @@ export default function Home() {
           <p className="text-xl mb-8 text-pink-100">Hasta 30% de descuento en destinos seleccionados</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/promociones" className="bg-white text-pink-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-transform hover:scale-105">
-              Ver Promociones
+              Ver Todas las Ofertas
             </Link>
             <Link to="/cotizador" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-pink-600 transition-all">
-              Cotiza tu Viaje
+              Cotizar Ahora
+            </Link>
+            <Link to="/reservar" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-pink-600 transition-all">
+              Reservar
             </Link>
           </div>
         </div>
@@ -271,11 +281,14 @@ export default function Home() {
           <h2 className="text-4xl font-bold mb-4">¿Listo para tu próxima aventura?</h2>
           <p className="text-xl mb-8 text-blue-100">Contáctanos hoy y recibe una cotización personalizada sin compromiso</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contacto" className="bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-transform hover:scale-105">
-              Contáctanos
+            <Link to="/cotizador" className="bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-transform hover:scale-105">
+              Cotizar Mi Viaje
+            </Link>
+            <Link to="/reservar" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all">
+              Reservar Ahora
             </Link>
             <a href="tel:+525558009000" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all flex items-center justify-center gap-2">
-              <Headphones size={20} /> Llámanos Ahora
+              <Headphones size={20} /> Llamar
             </a>
           </div>
         </div>

@@ -13,8 +13,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { to: '/paquetes', label: 'Paquetes' },
     { to: '/promociones', label: 'Promociones' },
     { to: '/cotizador', label: 'Cotizador' },
-    { to: '/blog', label: 'Blog' },
     { to: '/reservar', label: 'Reservar' },
+    { to: '/blog', label: 'Blog' },
+    { to: '/nosotros', label: 'Nosotros' },
+    { to: '/faq', label: 'FAQ' },
     { to: '/contacto', label: 'Contacto' },
   ];
 
@@ -48,17 +50,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
             {navLinks.map(link => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-medium transition-colors ${isActive(link.to) ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'text-gray-700 hover:text-blue-600'}`}
+                className={`font-medium text-sm transition-colors ${isActive(link.to) ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'text-gray-700 hover:text-blue-600'}`}
               >
                 {link.label}
               </Link>
             ))}
-            <Link to="/reservar" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2 rounded-full font-semibold hover:shadow-lg transition-transform hover:scale-105">
+            <Link to="/reservar" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transition-transform hover:scale-105 ml-2">
               ¡Reserva Ya!
             </Link>
           </div>
@@ -108,6 +110,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div>
+            <h4 className="text-white font-semibold mb-4">Explorar</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/destinos" className="hover:text-white transition">Destinos</Link></li>
+              <li><Link to="/paquetes" className="hover:text-white transition">Paquetes Turísticos</Link></li>
+              <li><Link to="/promociones" className="hover:text-white transition">Promociones</Link></li>
+              <li><Link to="/cotizador" className="hover:text-white transition">Cotizador de Viajes</Link></li>
+              <li><Link to="/blog" className="hover:text-white transition">Blog de Viajes</Link></li>
+            </ul>
+          </div>
+          <div>
             <h4 className="text-white font-semibold mb-4">Destinos Populares</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/destinos" className="hover:text-white transition">Cancún, México</Link></li>
@@ -118,13 +130,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">Servicios</h4>
+            <h4 className="text-white font-semibold mb-4">Ayuda</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/paquetes" className="hover:text-white transition">Paquetes Turísticos</Link></li>
-              <li><Link to="/cotizador" className="hover:text-white transition">Cotizador de Viajes</Link></li>
-              <li><Link to="/promociones" className="hover:text-white transition">Promociones</Link></li>
-              <li><Link to="/blog" className="hover:text-white transition">Blog de Viajes</Link></li>
               <li><Link to="/faq" className="hover:text-white transition">Preguntas Frecuentes</Link></li>
+              <li><Link to="/reservar" className="hover:text-white transition">Cómo Reservar</Link></li>
+              <li><Link to="/contacto" className="hover:text-white transition">Contacto</Link></li>
+              <li><Link to="/nosotros" className="hover:text-white transition">Sobre Nosotros</Link></li>
+              <li><a href="#" className="hover:text-white transition">Términos y Condiciones</a></li>
             </ul>
           </div>
           <div>

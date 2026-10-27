@@ -85,9 +85,14 @@ export default function Packages() {
                         <span className="text-sm text-gray-500">Precio por persona</span>
                         <p className="text-3xl font-bold text-blue-600">{formatPrice(pkg.price)}</p>
                       </div>
-                      <Link to="/reservar" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-transform hover:scale-105">
-                        Reservar
-                      </Link>
+                      <div className="flex gap-2">
+                        <Link to="/cotizador" className="border-2 border-blue-600 text-blue-600 px-4 py-2.5 rounded-xl font-semibold hover:bg-blue-50 transition">
+                          Cotizar
+                        </Link>
+                        <Link to="/reservar" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-2.5 rounded-xl font-bold hover:shadow-lg transition-transform hover:scale-105">
+                          Reservar
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -111,9 +111,18 @@ export default function FAQ() {
           <h2 className="text-3xl font-bold mb-4">¿No encontraste tu respuesta?</h2>
           <p className="text-gray-600 mb-8">Nuestro equipo está listo para ayudarte. Contáctanos por cualquier medio.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://wa.me/525558009000" className="bg-green-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-600 transition">💬 WhatsApp</a>
-            <a href="tel:+525558009000" className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition">📞 Llamar</a>
-            <a href="/contacto" className="bg-amber-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-700 transition">✉️ Email</a>
+            <a href="https://wa.me/525558009000" className="bg-green-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-600 transition flex items-center justify-center gap-2">
+              💬 WhatsApp
+            </a>
+            <a href="tel:+525558009000" className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+              📞 Llamar
+            </a>
+            <a href="/contacto" className="bg-amber-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-700 transition flex items-center justify-center gap-2">
+              ✉️ Email
+            </a>
+            <a href="/reservar" className="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2">
+              🎯 Reservar
+            </a>
           </div>
         </div>
       </section>
