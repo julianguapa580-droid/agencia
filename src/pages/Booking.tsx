@@ -3,7 +3,7 @@ import { useStore } from '../data/store';
 import { CheckCircle, Calendar, Users, CreditCard, Shield } from 'lucide-react';
 
 export default function Booking() {
-  const { packages, destinations, addBooking } = useStore();
+  const { packages, destinations, addBooking, formatPrice } = useStore();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
@@ -57,7 +57,7 @@ export default function Booking() {
           <div className="bg-blue-50 rounded-xl p-6 mb-6">
             <p className="font-semibold text-blue-800">Resumen de tu reserva:</p>
             <p className="text-blue-700">{selectedPackage?.name}</p>
-            <p className="text-blue-600 font-bold text-xl mt-2">Total: ${totalPrice.toLocaleString()} MXN</p>
+            <p className="text-blue-600 font-bold text-xl mt-2">Total: {formatPrice(totalPrice)}</p>
           </div>
           <button onClick={() => { setSubmitted(false); setStep(1); setForm({ packageId: '', clientName: '', clientEmail: '', clientPhone: '', travelers: 2, startDate: '', endDate: '', notes: '' }); }} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
             Hacer otra reserva
@@ -114,7 +114,7 @@ export default function Booking() {
                         <p className="font-bold">{pkg.name}</p>
                         <p className="text-sm text-gray-500">{pkg.duration}</p>
                       </div>
-                      <p className="text-xl font-bold text-blue-600">${pkg.price.toLocaleString()}</p>
+                      <p className="text-xl font-bold text-blue-600">{formatPrice(pkg.price)}</p>
                     </label>
                   ))}
                 </div>
@@ -190,9 +190,9 @@ export default function Booking() {
                     <div><span className="text-sm text-gray-500">Fecha fin:</span><p className="font-semibold">{form.endDate}</p></div>
                   </div>
                   <div className="pt-4 border-t">
-                    <div className="flex justify-between text-sm"><span>Precio por persona:</span><span>${selectedPackage.price.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span>Precio por persona:</span><span>{formatPrice(selectedPackage.price)}</span></div>
                     <div className="flex justify-between text-sm"><span>Viajeros:</span><span>×{form.travelers}</span></div>
-                    <div className="flex justify-between text-xl font-bold mt-2 text-blue-600"><span>Total:</span><span>${totalPrice.toLocaleString()} MXN</span></div>
+                    <div className="flex justify-between text-xl font-bold mt-2 text-blue-600"><span>Total:</span><span>{formatPrice(totalPrice)}</span></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">

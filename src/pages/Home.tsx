@@ -4,7 +4,7 @@ import { useStore } from '../data/store';
 import { Star, Shield, Clock, Headphones, Globe, Award, ChevronRight, ArrowRight } from 'lucide-react';
 
 export default function Home() {
-  const { destinations, packages } = useStore();
+  const { destinations, packages, formatPrice } = useStore();
   const featuredDestinations = destinations.filter(d => d.featured).slice(0, 6);
   const topPackages = packages.slice(0, 4);
 
@@ -114,7 +114,7 @@ export default function Home() {
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-sm text-gray-500">Desde</span>
-                      <p className="text-2xl font-bold text-blue-600">${dest.priceFrom}<span className="text-sm text-gray-500 font-normal">/persona</span></p>
+                      <p className="text-2xl font-bold text-blue-600">{formatPrice(dest.priceFrom)}<span className="text-sm text-gray-500 font-normal">/persona</span></p>
                     </div>
                     <Link to="/paquetes" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-1">
                       Ver más <ChevronRight size={16} />
@@ -155,7 +155,7 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="flex justify-between items-center pt-3 border-t">
-                    <p className="text-2xl font-bold text-blue-600">${pkg.price.toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-blue-600">{formatPrice(pkg.price)}</p>
                     <Link to="/reservar" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
                       Reservar
                     </Link>

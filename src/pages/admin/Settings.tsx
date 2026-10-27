@@ -67,8 +67,12 @@ export default function Settings() {
                 <select value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="MXN">MXN - Peso Mexicano</option>
                   <option value="USD">USD - Dólar Americano</option>
+                  <option value="PEN">PEN - Sol Peruano</option>
                   <option value="EUR">EUR - Euro</option>
                   <option value="COP">COP - Peso Colombiano</option>
+                  <option value="ARS">ARS - Peso Argentino</option>
+                  <option value="CLP">CLP - Peso Chileno</option>
+                  <option value="BRL">BRL - Real Brasileño</option>
                 </select>
               </div>
             </div>

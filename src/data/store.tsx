@@ -135,6 +135,24 @@ export interface Invoice {
   folio: string;
 }
 
+export interface Currency {
+  code: string;
+  symbol: string;
+  name: string;
+  rate: number; // Rate relative to MXN (base currency)
+}
+
+export const currencies: Currency[] = [
+  { code: 'MXN', symbol: '$', name: 'Peso Mexicano', rate: 1 },
+  { code: 'USD', symbol: '$', name: 'Dólar Americano', rate: 0.058 },
+  { code: 'PEN', symbol: 'S/', name: 'Sol Peruano', rate: 0.22 },
+  { code: 'EUR', symbol: '€', name: 'Euro', rate: 0.053 },
+  { code: 'COP', symbol: '$', name: 'Peso Colombiano', rate: 230 },
+  { code: 'ARS', symbol: '$', name: 'Peso Argentino', rate: 50 },
+  { code: 'CLP', symbol: '$', name: 'Peso Chileno', rate: 52 },
+  { code: 'BRL', symbol: 'R$', name: 'Real Brasileño', rate: 0.29 },
+];
+
 export interface AgencySettings {
   name: string;
   email: string;
@@ -264,6 +282,11 @@ interface StoreContextType {
   invoices: Invoice[];
   settings: AgencySettings;
   isAdmin: boolean;
+  selectedCurrency: string;
+  setSelectedCurrency: (code: string) => void;
+  formatPrice: (priceMXN: number) => string;
+  convertPrice: (priceMXN: number) => number;
+  getCurrentCurrency: () => Currency;
   setIsAdmin: (v: boolean) => void;
   addBooking: (booking: Booking) => void;
   updateBooking: (booking: Booking) => void;
@@ -307,6 +330,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [departures, setDepartures] = useState<Departure[]>(initialDepartures);
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('MXN');
   const [settings, setSettings] = useState<AgencySettings>({
     name: 'VoyageX Travel Agency',
     email: 'info@voyagex.com',
@@ -319,6 +343,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     instagram: '@voyagex',
     twitter: '@voyagex',
   });
+
+  const getCurrentCurrency = (): Currency => {
+    return currencies.find(c => c.code === selectedCurrency) || currencies[0];
+  };
+
+  const convertPrice = (priceMXN: number): number => {
+    const currency = getCurrentCurrency();
+    return Math.round(priceMXN * currency.rate);
+  };
+
+  const formatPrice = (priceMXN: number): string => {
+    const currency = getCurrentCurrency();
+    const converted = convertPrice(priceMXN);
+    return `${currency.symbol}${converted.toLocaleString()}`;
+  };
 
   const addBooking = (booking: Booking) => setBookings(prev => [...prev, booking]);
   const updateBooking = (booking: Booking) => setBookings(prev => prev.map(b => b.id === booking.id ? booking : b));
@@ -358,7 +397,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, setIsAdmin,
+      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency, setIsAdmin,
       addBooking, updateBooking, deleteBooking,
       addDestination, updateDestination, deleteDestination,
       addPackage, updatePackage, deletePackage,

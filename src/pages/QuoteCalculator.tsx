@@ -4,7 +4,7 @@ import { Calculator, Plane, Hotel, Users, Calendar, MapPin, DollarSign, Check, A
 import { Link } from 'react-router-dom';
 
 export default function QuoteCalculator() {
-  const { destinations, packages } = useStore();
+  const { destinations, packages, formatPrice } = useStore();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     destination: '',
@@ -222,18 +222,18 @@ export default function QuoteCalculator() {
                   </div>
 
                   <div className="border-t pt-4 space-y-2">
-                    <div className="flex justify-between text-sm"><span>Paquete base × {form.travelers} viajeros:</span><span>${(basePrice * form.travelers).toLocaleString()}</span></div>
+                    <div className="flex justify-between text-sm"><span>Paquete base × {form.travelers} viajeros:</span><span>{formatPrice(basePrice * form.travelers)}</span></div>
                     {form.extras.map(id => {
                       const extra = extras.find(e => e.id === id);
                       return extra ? (
-                        <div key={id} className="flex justify-between text-sm"><span>{extra.icon} {extra.name} × {form.travelers}:</span><span>${(extra.price * form.travelers).toLocaleString()}</span></div>
+                        <div key={id} className="flex justify-between text-sm"><span>{extra.icon} {extra.name} × {form.travelers}:</span><span>{formatPrice(extra.price * form.travelers)}</span></div>
                       ) : null;
                     })}
                     <div className="border-t pt-2 flex justify-between text-lg font-bold">
                       <span>Total estimado:</span>
-                      <span className="text-emerald-600">${totalPrice.toLocaleString()} MXN</span>
+                      <span className="text-emerald-600">{formatPrice(totalPrice)}</span>
                     </div>
-                    <p className="text-right text-sm text-gray-500">≈ ${pricePerPerson.toLocaleString()} por persona</p>
+                    <p className="text-right text-sm text-gray-500">≈ {formatPrice(pricePerPerson)} por persona</p>
                   </div>
                 </div>
 
@@ -248,7 +248,7 @@ export default function QuoteCalculator() {
                             <p className="font-semibold text-sm">{pkg.name}</p>
                             <p className="text-xs text-gray-500">{pkg.duration}</p>
                           </div>
-                          <p className="font-bold text-emerald-600">${pkg.price.toLocaleString()}</p>
+                          <p className="font-bold text-emerald-600">{formatPrice(pkg.price)}</p>
                         </div>
                       ))}
                     </div>

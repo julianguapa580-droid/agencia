@@ -4,7 +4,7 @@ import { Tag, Clock, Copy, Check, Percent, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Promotions() {
-  const { promotions, packages } = useStore();
+  const { promotions, packages, formatPrice } = useStore();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const activePromos = promotions.filter(p => p.active);
 
