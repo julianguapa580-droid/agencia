@@ -4,7 +4,7 @@ import { Star, Check, Clock, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Packages() {
-  const { packages, destinations } = useStore();
+  const { packages, destinations, formatPrice } = useStore();
   const [category, setCategory] = useState('all');
 
   const categories = [
@@ -83,7 +83,7 @@ export default function Packages() {
                     <div className="flex justify-between items-center pt-4 border-t">
                       <div>
                         <span className="text-sm text-gray-500">Precio por persona</span>
-                        <p className="text-3xl font-bold text-blue-600">${pkg.price.toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-blue-600">{formatPrice(pkg.price)}</p>
                       </div>
                       <Link to="/reservar" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-transform hover:scale-105">
                         Reservar

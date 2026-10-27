@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Plane, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import CurrencySelector from './CurrencySelector';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,7 +30,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="flex items-center gap-1"><Mail size={14} /> info@voyagex.com</span>
             <span className="flex items-center gap-1"><MapPin size={14} /> CDMX, México</span>
           </div>
-          <Link to="/admin" className="text-blue-200 hover:text-white transition">Admin</Link>
+          <div className="flex items-center gap-3">
+            <CurrencySelector />
+            <Link to="/admin" className="text-blue-200 hover:text-white transition">Admin</Link>
+          </div>
         </div>
       </div>
 

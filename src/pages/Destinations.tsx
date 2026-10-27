@@ -4,7 +4,7 @@ import { Star, MapPin, Search, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Destinations() {
-  const { destinations } = useStore();
+  const { destinations, formatPrice } = useStore();
   const [search, setSearch] = useState('');
   const [continent, setContinent] = useState('all');
 
@@ -78,7 +78,7 @@ export default function Destinations() {
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-xs text-gray-500">Desde</span>
-                      <p className="text-2xl font-bold text-blue-600">${dest.priceFrom}<span className="text-sm text-gray-500 font-normal">/persona</span></p>
+                      <p className="text-2xl font-bold text-blue-600">{formatPrice(dest.priceFrom)}<span className="text-sm text-gray-500 font-normal">/persona</span></p>
                     </div>
                     <Link to="/paquetes" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
                       Ver Paquetes
