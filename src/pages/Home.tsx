@@ -211,6 +211,60 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Promotions Banner */}
+      <section className="py-16 px-4 bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-4">🔥 ¡Ofertas Especiales!</h2>
+          <p className="text-xl mb-8 text-pink-100">Hasta 30% de descuento en destinos seleccionados</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/promociones" className="bg-white text-pink-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-transform hover:scale-105">
+              Ver Promociones
+            </Link>
+            <Link to="/cotizador" className="border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-pink-600 transition-all">
+              Cotiza tu Viaje
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Preview */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold">Últimas del Blog</h2>
+            <Link to="/blog" className="text-blue-600 font-semibold hover:underline flex items-center gap-1">Ver todo →</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: '10 Playas Paradisíacas para 2026', cat: 'Destinos', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400' },
+              { title: 'Guía Completa para Viajar a Japón', cat: 'Guías', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400' },
+              { title: 'Los Mejores Destinos para Luna de Miel', cat: 'Romance', img: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400' },
+            ].map((post, i) => (
+              <Link to="/blog" key={i} className="group rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div className="h-40 overflow-hidden">
+                  <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-4">
+                  <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-semibold">{post.cat}</span>
+                  <h3 className="font-bold mt-2 group-hover:text-blue-600 transition-colors">{post.title}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Preview */}
+      <section className="py-16 px-4 bg-amber-50">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">¿Tienes Preguntas?</h2>
+          <p className="text-gray-600 mb-8">Encuentra respuestas rápidas a las dudas más comunes</p>
+          <Link to="/faq" className="inline-flex items-center gap-2 bg-amber-600 text-white px-8 py-3 rounded-full font-bold hover:bg-amber-700 transition">
+            Ver Preguntas Frecuentes
+          </Link>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-cyan-500">
         <div className="max-w-4xl mx-auto text-center text-white">
