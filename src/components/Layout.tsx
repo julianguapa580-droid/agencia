@@ -10,8 +10,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { to: '/', label: 'Inicio' },
     { to: '/destinos', label: 'Destinos' },
     { to: '/paquetes', label: 'Paquetes' },
+    { to: '/promociones', label: 'Promociones' },
+    { to: '/cotizador', label: 'Cotizador' },
+    { to: '/blog', label: 'Blog' },
     { to: '/reservar', label: 'Reservar' },
-    { to: '/nosotros', label: 'Nosotros' },
     { to: '/contacto', label: 'Contacto' },
   ];
 
@@ -115,10 +117,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <h4 className="text-white font-semibold mb-4">Servicios</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/paquetes" className="hover:text-white transition">Paquetes Turísticos</Link></li>
-              <li><Link to="/paquetes" className="hover:text-white transition">Vuelos</Link></li>
-              <li><Link to="/paquetes" className="hover:text-white transition">Hoteles</Link></li>
-              <li><Link to="/paquetes" className="hover:text-white transition">Cruceros</Link></li>
-              <li><Link to="/paquetes" className="hover:text-white transition">Seguros de Viaje</Link></li>
+              <li><Link to="/cotizador" className="hover:text-white transition">Cotizador de Viajes</Link></li>
+              <li><Link to="/promociones" className="hover:text-white transition">Promociones</Link></li>
+              <li><Link to="/blog" className="hover:text-white transition">Blog de Viajes</Link></li>
+              <li><Link to="/faq" className="hover:text-white transition">Preguntas Frecuentes</Link></li>
             </ul>
           </div>
           <div>

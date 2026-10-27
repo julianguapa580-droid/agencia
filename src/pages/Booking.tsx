@@ -38,6 +38,7 @@ export default function Booking() {
       status: 'pendiente' as const,
       createdAt: new Date().toISOString().split('T')[0],
       notes: form.notes,
+      paymentStatus: 'pendiente' as const,
     };
     addBooking(booking);
     setSubmitted(true);

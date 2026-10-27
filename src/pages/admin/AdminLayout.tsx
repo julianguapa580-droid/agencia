@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useStore } from '../../data/store';
-import { LayoutDashboard, MapPin, Package, Calendar, Users, Settings, LogOut, Plane, Menu, X, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, MapPin, Package, Calendar, Users, Settings, LogOut, Plane, Menu, X, ChevronDown, Tag, FileText, Mail, CalendarDays, Receipt, BarChart3 } from 'lucide-react';
 
 export default function AdminLayout() {
   const { isAdmin, setIsAdmin } = useStore();
@@ -25,6 +25,13 @@ export default function AdminLayout() {
     { to: '/admin/destinos', icon: MapPin, label: 'Destinos' },
     { to: '/admin/paquetes', icon: Package, label: 'Paquetes' },
     { to: '/admin/clientes', icon: Users, label: 'Clientes' },
+    { to: '/admin/promociones', icon: Tag, label: 'Promociones' },
+    { to: '/admin/blog', icon: FileText, label: 'Blog' },
+    { to: '/admin/empleados', icon: Users, label: 'Empleados' },
+    { to: '/admin/mensajes', icon: Mail, label: 'Mensajes' },
+    { to: '/admin/salidas', icon: CalendarDays, label: 'Calendario' },
+    { to: '/admin/facturas', icon: Receipt, label: 'Facturación' },
+    { to: '/admin/reportes', icon: BarChart3, label: 'Reportes' },
     { to: '/admin/configuracion', icon: Settings, label: 'Configuración' },
   ];
 
