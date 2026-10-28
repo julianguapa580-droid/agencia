@@ -344,8 +344,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
   const [busLayout, setBusLayout] = useState<BusLayout>({ floors: 1, seatsPerFloor: 40 });
-  const [siteIcon, setSiteIcon] = useState<string | null>(null);
-  const [clientsBackground, setClientsBackground] = useState<string | null>(null);
+  // Icono y fondo se guardan en el navegador para que sigan al recargar la página
+  const readStored = (key: string): string | null => {
+    try { return localStorage.getItem(key); } catch { return null; }
+  };
+  const [siteIcon, setSiteIconState] = useState<string | null>(() => readStored('voyagex_site_icon'));
+  const [clientsBackground, setClientsBackgroundState] = useState<string | null>(() => readStored('voyagex_clients_bg'));
+
+  const persist = (key: string, value: string | null) => {
+    try {
+      if (value) localStorage.setItem(key, value);
+      else localStorage.removeItem(key);
+      return true;
+    } catch {
+      alert('No hay espacio suficiente en el navegador para guardar esta imagen. Prueba con una imagen más pequeña.');
+      return false;
+    }
+  };
+  const setSiteIcon = (value: string | null) => {
+    if (persist('voyagex_site_icon', value)) setSiteIconState(value);
+  };
+  const setClientsBackground = (value: string | null) => {
+    if (persist('voyagex_clients_bg', value)) setClientsBackgroundState(value);
+  };
 
   // Icono del sitio: actualiza el favicon de la pestaña del navegador
   useEffect(() => {
