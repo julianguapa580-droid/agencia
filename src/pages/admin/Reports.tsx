@@ -51,81 +51,238 @@ export default function Reports() {
     { name: 'Efectivo', value: 10, color: '#f59e0b' },
   ];
 
-  // Exporta a PDF todo el contenido de reportes como texto y tablas (sin capturar la pantalla)
+  // Exporta a PDF todo el contenido de reportes: indicadores, gráficas dibujadas y tablas
   const exportReportPDF = async () => {
     try {
       const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
+      const M = 14; // margen
+      const contentW = pageW - M * 2;
       const today = new Date().toISOString().slice(0, 10);
       let y = 20;
 
+      const hex = (h: string): [number, number, number] => {
+        const n = parseInt(h.replace('#', ''), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      };
       const ensure = (space: number) => {
         if (y + space > pageH - 15) { pdf.addPage(); y = 20; }
       };
-      const title = (text: string) => {
-        ensure(14);
+      const sectionTitle = (text: string) => {
+        ensure(16);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(13);
         pdf.setTextColor(37, 99, 235);
-        pdf.text(text, 14, y);
+        pdf.text(text, M, y);
         pdf.setTextColor(0, 0, 0);
-        y += 7;
+        y += 4;
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(M, y, pageW - M, y);
+        y += 6;
       };
-      const row = (cols: string[], xs: number[], bold = false) => {
+      const tableRow = (cells: string[], xs: number[], bold = false) => {
         ensure(7);
         pdf.setFont('helvetica', bold ? 'bold' : 'normal');
         pdf.setFontSize(10);
-        cols.forEach((c, i) => pdf.text(c, xs[i], y));
+        cells.forEach((c, i) => pdf.text(c, xs[i], y));
         y += 6;
       };
+      const drawPie = (cx: number, cy: number, r: number, slices: { value: number; color: string }[]) => {
+        const total = slices.reduce((s, x) => s + x.value, 0);
+        let start = -Math.PI / 2;
+        slices.forEach(sl => {
+          const angle = (sl.value / total) * 2 * Math.PI;
+          const steps = Math.max(2, Math.ceil(angle * 24));
+          pdf.setFillColor(...hex(sl.color));
+          for (let i = 0; i < steps; i++) {
+            const a1 = start + (angle * i) / steps;
+            const a2 = start + (angle * (i + 1)) / steps;
+            pdf.triangle(cx, cy, cx + r * Math.cos(a1), cy + r * Math.sin(a1), cx + r * Math.cos(a2), cy + r * Math.sin(a2), 'F');
+          }
+          start += angle;
+        });
+      };
+      const legend = (items: { label: string; color: string }[], x: number, startY: number) => {
+        let ly = startY;
+        items.forEach(it => {
+          pdf.setFillColor(...hex(it.color));
+          pdf.rect(x, ly - 3, 3, 3, 'F');
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(9);
+          pdf.text(it.label, x + 5, ly);
+          ly += 6;
+        });
+      };
 
+      // Encabezado
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(18);
-      pdf.text('Reportes y Finanzas', 14, y);
+      pdf.text('Reportes y Finanzas', M, y);
       y += 7;
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      pdf.text(`Fecha: ${today}    Moneda: ${getCurrentCurrency().code}`, 14, y);
+      pdf.text(`Fecha: ${today}    Moneda: ${getCurrentCurrency().code}`, M, y);
       y += 10;
 
-      title('Indicadores generales');
-      row(['Ingresos totales', formatPrice(totalRevenue)], [14, 110]);
-      row(['Cobrado', formatPrice(totalPaid)], [14, 110]);
-      row(['Pendiente / vencido', formatPrice(totalPending)], [14, 110]);
-      row(['Ticket promedio', formatPrice(Math.round(avgTicket))], [14, 110]);
-      row(['Reservas', String(bookings.length)], [14, 110]);
-      row(['Clientes', String(clients.length)], [14, 110]);
-      y += 4;
+      // 1. Indicadores (tarjetas)
+      sectionTitle('Indicadores generales');
+      const kpis = [
+        { label: 'Ingresos Totales', value: formatPrice(totalRevenue), color: '#10b981' },
+        { label: 'Ganancia Neta', value: formatPrice(totalRevenue * 0.6), color: '#3b82f6' },
+        { label: 'Ticket Promedio', value: formatPrice(Math.round(avgTicket)), color: '#8b5cf6' },
+        { label: 'Total Reservas', value: String(bookings.length), color: '#f97316' },
+      ];
+      const kpiW = (contentW - 9) / 4;
+      ensure(28);
+      kpis.forEach((k, i) => {
+        const x = M + i * (kpiW + 3);
+        pdf.setFillColor(248, 250, 252);
+        pdf.setDrawColor(226, 232, 240);
+        pdf.roundedRect(x, y, kpiW, 24, 2, 2, 'FD');
+        pdf.setFillColor(...hex(k.color));
+        pdf.rect(x, y, 2, 24, 'F');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(k.label, x + 5, y + 7);
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.text(k.value, x + 5, y + 17);
+      });
+      y += 32;
 
-      title('Ingresos mensuales');
-      const mxH = ['Mes', 'Ingresos', 'Gastos', 'Ganancia'];
-      const mxX = [14, 60, 110, 160];
-      row(mxH, mxX, true);
-      monthlyRevenue.forEach(m => row([m.month, formatPrice(m.ingresos), formatPrice(m.gastos), formatPrice(m.ganancia)], mxX));
-      y += 4;
-
-      title('Ventas por categoría');
-      row(['Categoría', '% de ventas'], [14, 110], true);
-      salesByCategory.forEach(c => row([c.name, `${c.value}%`], [14, 110]));
-      y += 4;
-
-      title('Embudo de conversión');
-      row(['Etapa', 'Cantidad'], [14, 110], true);
-      funnelData.forEach(f => row([f.stage, String(f.value)], [14, 110]));
-      y += 4;
-
-      title('Métodos de pago');
-      row(['Método', '% del total'], [14, 110], true);
-      paymentMethods.forEach(p => row([p.name, `${p.value}%`], [14, 110]));
-      y += 4;
-
-      title('Mejores vendedores');
-      if (topSellers.length === 0) row(['Sin datos'], [14]);
-      else {
-        row(['Empleado', 'Ventas'], [14, 110], true);
-        topSellers.forEach(e => row([e.name, formatPrice(e.sales)], [14, 110]));
+      // 2. Ingresos vs Gastos vs Ganancia (gráfica de líneas)
+      sectionTitle('Ingresos vs Gastos vs Ganancia');
+      {
+        const chartH = 62;
+        ensure(chartH + 20);
+        const left = M + 22;
+        const right = pageW - M - 2;
+        const top = y + 2;
+        const bottom = y + chartH;
+        const maxV = Math.max(...monthlyRevenue.flatMap(m => [m.ingresos, m.gastos, m.ganancia])) * 1.1;
+        const xAt = (i: number) => left + ((right - left) * i) / (monthlyRevenue.length - 1);
+        const yAt = (v: number) => bottom - ((bottom - top) * v) / maxV;
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 100, 100);
+        for (let g = 0; g <= 4; g++) {
+          const v = (maxV * g) / 4;
+          pdf.setDrawColor(230, 230, 230);
+          pdf.line(left, yAt(v), right, yAt(v));
+          pdf.text(formatPrice(Math.round(v)), M, yAt(v) + 1);
+        }
+        pdf.setTextColor(0, 0, 0);
+        monthlyRevenue.forEach((m, i) => pdf.text(m.month, xAt(i) - 3, bottom + 5));
+        const series: { key: 'ingresos' | 'gastos' | 'ganancia'; color: string; label: string }[] = [
+          { key: 'ingresos', color: '#3b82f6', label: 'Ingresos' },
+          { key: 'gastos', color: '#ef4444', label: 'Gastos' },
+          { key: 'ganancia', color: '#10b981', label: 'Ganancia' },
+        ];
+        series.forEach(s => {
+          pdf.setDrawColor(...hex(s.color));
+          pdf.setLineWidth(0.8);
+          monthlyRevenue.forEach((m, i) => {
+            if (i > 0) pdf.line(xAt(i - 1), yAt(monthlyRevenue[i - 1][s.key]), xAt(i), yAt(m[s.key]));
+          });
+        });
+        pdf.setLineWidth(0.2);
+        legend(series.map(s => ({ label: s.label, color: s.color })), left, bottom + 12);
+        y = bottom + 20;
       }
+
+      // Tabla de datos mensuales
+      ensure(30);
+      const mxX = [M, 60, 110, 160];
+      tableRow(['Mes', 'Ingresos', 'Gastos', 'Ganancia'], mxX, true);
+      monthlyRevenue.forEach(m => tableRow([m.month, formatPrice(m.ingresos), formatPrice(m.gastos), formatPrice(m.ganancia)], mxX));
+      y += 6;
+
+      // 3. Ventas por categoría (pastel)
+      sectionTitle('Ventas por Categoría');
+      ensure(60);
+      drawPie(M + 30, y + 26, 24, salesByCategory.map(c => ({ value: c.value, color: c.color })));
+      legend(salesByCategory.map(c => ({ label: `${c.name} (${c.value}%)`, color: c.color })), M + 70, y + 10);
+      y += 62;
+
+      // 4. Top vendedores (barras)
+      sectionTitle('Top Vendedores');
+      if (topSellers.length === 0) {
+        tableRow(['Sin datos'], [M]);
+      } else {
+        const maxSales = topSellers[0].sales || 1;
+        topSellers.forEach((emp, i) => {
+          ensure(10);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          pdf.text(`#${i + 1}  ${emp.name}`, M, y + 4);
+          const barX = M + 60;
+          const barMax = contentW - 60 - 30;
+          pdf.setFillColor(226, 232, 240);
+          pdf.rect(barX, y, barMax, 5, 'F');
+          pdf.setFillColor(59, 130, 246);
+          pdf.rect(barX, y, barMax * (emp.sales / maxSales), 5, 'F');
+          pdf.text(`${emp.sales} ventas`, barX + barMax + 2, y + 4);
+          y += 9;
+        });
+      }
+      y += 4;
+
+      // 5. Embudo de conversión (barras horizontales)
+      sectionTitle('Embudo de Conversión');
+      funnelData.forEach(item => {
+        ensure(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(10);
+        pdf.text(item.stage, M, y + 4);
+        const barX = M + 35;
+        const barMax = contentW - 35 - 30;
+        pdf.setFillColor(226, 232, 240);
+        pdf.rect(barX, y, barMax, 6, 'F');
+        pdf.setFillColor(6, 182, 212);
+        pdf.rect(barX, y, barMax * (item.value / funnelData[0].value), 6, 'F');
+        pdf.text(`${item.value} (${Math.round((item.value / funnelData[0].value) * 100)}%)`, barX + barMax + 2, y + 4.5);
+        y += 10;
+      });
+      y += 4;
+
+      // 6. Métodos de pago (pastel)
+      sectionTitle('Métodos de Pago');
+      ensure(60);
+      drawPie(M + 30, y + 26, 24, paymentMethods.map(m => ({ value: m.value, color: m.color })));
+      legend(paymentMethods.map(m => ({ label: `${m.name} (${m.value}%)`, color: m.color })), M + 70, y + 10);
+      y += 62;
+
+      // 7. Resumen financiero
+      sectionTitle('Resumen Financiero');
+      const resumen = [
+        { label: 'Total Cobrado', value: formatPrice(totalPaid) },
+        { label: 'Por Cobrar', value: formatPrice(totalPending) },
+        { label: 'Comisiones Pagadas', value: formatPrice(totalPaid * 0.05) },
+        { label: 'Clientes Activos', value: String(clients.length) },
+      ];
+      const boxW = (contentW - 6) / 2;
+      ensure(36);
+      resumen.forEach((r, i) => {
+        const x = M + (i % 2) * (boxW + 6);
+        const by = y + Math.floor(i / 2) * 18;
+        pdf.setFillColor(241, 245, 249);
+        pdf.roundedRect(x, by, boxW, 14, 2, 2, 'F');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(r.label, x + 4, by + 5.5);
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.text(r.value, x + 4, by + 11.5);
+      });
+      y += 40;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+      pdf.text('Margen de ganancia: 60%', M, y);
 
       pdf.save(`reportes_${today}.pdf`);
     } catch (err) {
