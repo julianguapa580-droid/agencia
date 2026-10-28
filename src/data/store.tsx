@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Types
 export interface Destination {
@@ -297,6 +297,10 @@ interface StoreContextType {
   setIsAdmin: (v: boolean) => void;
   busLayout: BusLayout;
   setBusLayout: (layout: BusLayout) => void;
+  siteIcon: string | null;
+  setSiteIcon: (dataUrl: string | null) => void;
+  clientsBackground: string | null;
+  setClientsBackground: (dataUrl: string | null) => void;
   addBooking: (booking: Booking) => void;
   updateBooking: (booking: Booking) => void;
   deleteBooking: (id: string) => void;
@@ -340,6 +344,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
   const [busLayout, setBusLayout] = useState<BusLayout>({ floors: 1, seatsPerFloor: 40 });
+  const [siteIcon, setSiteIcon] = useState<string | null>(null);
+  const [clientsBackground, setClientsBackground] = useState<string | null>(null);
+
+  // Icono del sitio: actualiza el favicon de la pestaña del navegador
+  useEffect(() => {
+    if (!siteIcon) return;
+    let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = siteIcon;
+  }, [siteIcon]);
   const [settings, setSettings] = useState<AgencySettings>({
     name: 'VoyageX Travel Agency',
     email: 'info@voyagex.com',
@@ -414,7 +432,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency, setIsAdmin, busLayout, setBusLayout,
+      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency, setIsAdmin, busLayout, setBusLayout, siteIcon, setSiteIcon, clientsBackground, setClientsBackground,
       addBooking, updateBooking, deleteBooking,
       addDestination, updateDestination, deleteDestination,
       addPackage, updatePackage, deletePackage,

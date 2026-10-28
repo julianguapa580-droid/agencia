@@ -5,7 +5,16 @@ import { Search, Mail, Phone, Calendar, DollarSign, Eye, X, Bus, Download } from
 const SEATS_PER_ROW = 4; // 2 asientos + pasillo + 2 asientos
 
 export default function ManageClients() {
-  const { formatPrice, clients, bookings, updateBooking, busLayout, setBusLayout } = useStore();
+  const { formatPrice, clients, bookings, updateBooking, busLayout, setBusLayout, siteIcon, setSiteIcon, clientsBackground, setClientsBackground } = useStore();
+
+  // Lee una imagen del equipo y la devuelve como data URL
+  const readImage = (file: File, onLoad: (dataUrl: string) => void) => {
+    if (!file.type.startsWith('image/')) return alert('Selecciona un archivo de imagen.');
+    if (file.size > 2 * 1024 * 1024) return alert('La imagen no debe pesar más de 2 MB.');
+    const reader = new FileReader();
+    reader.onload = () => onLoad(reader.result as string);
+    reader.readAsDataURL(file);
+  };
   const [search, setSearch] = useState('');
   const [viewing, setViewing] = useState<string | null>(null);
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
@@ -134,7 +143,31 @@ export default function ManageClients() {
   const clientBookings = viewing ? getClientBookings(viewing) : [];
 
   return (
-    <div>
+    <div className="rounded-2xl p-4 min-h-[80vh]" style={clientsBackground ? { backgroundImage: `url("${clientsBackground}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+      {/* Personalización: icono del sitio y fondo de esta pestaña */}
+      <div className="bg-white/90 backdrop-blur rounded-xl shadow-md p-5 mb-6">
+        <h3 className="font-bold mb-4">Personalización</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-sm font-semibold mb-1">Icono del sitio (favicon)</p>
+            <p className="text-xs text-gray-500 mb-2">Se muestra en la pestaña del navegador. Recomendado: cuadrado, 64×64 px o más.</p>
+            <div className="flex items-center gap-3">
+              {siteIcon && <img src={siteIcon} alt="Icono" className="w-10 h-10 rounded border object-contain bg-white" />}
+              <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) readImage(f, setSiteIcon); e.target.value = ''; }} className="text-sm" />
+              {siteIcon && <button onClick={() => setSiteIcon(null)} className="text-sm text-red-600 hover:underline">Quitar</button>}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold mb-1">Imagen de fondo</p>
+            <p className="text-xs text-gray-500 mb-2">Solo se aplica a esta pestaña de Clientes.</p>
+            <div className="flex items-center gap-3">
+              {clientsBackground && <img src={clientsBackground} alt="Fondo" className="w-16 h-10 rounded border object-cover" />}
+              <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) readImage(f, setClientsBackground); e.target.value = ''; }} className="text-sm" />
+              {clientsBackground && <button onClick={() => setClientsBackground(null)} className="text-sm text-red-600 hover:underline">Quitar</button>}
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Gestión de Clientes</h1>
         <p className="text-gray-500">{clients.length} clientes registrados</p>
