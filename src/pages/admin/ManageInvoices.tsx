@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
 import { useStore, Invoice } from '../../data/store';
 import { FileText, Search, Download, Eye, DollarSign, CreditCard, CheckCircle, Clock, AlertTriangle, Printer } from 'lucide-react';
 
@@ -41,6 +42,70 @@ export default function ManageInvoices() {
     XLSX.writeFile(workbook, `facturas_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
+  // Listado de facturas visibles en PDF, en la moneda seleccionada
+  const exportToPDF = () => {
+    const currency = getCurrentCurrency();
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const today = new Date().toISOString().slice(0, 10);
+    doc.setFontSize(16);
+    doc.text('Reporte de facturación', 14, 18);
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${today}    Moneda: ${currency.code}    Facturas: ${filtered.length}`, 14, 26);
+
+    let y = 36;
+    doc.setFont('helvetica', 'bold');
+    ['Folio', 'Cliente', 'Fecha', 'Vencimiento', 'Estado', 'Total'].forEach((h, i) => {
+      doc.text(h, [14, 50, 130, 170, 210, 245][i], y);
+    });
+    doc.setFont('helvetica', 'normal');
+    y += 6;
+    filtered.forEach(inv => {
+      if (y > 190) { doc.addPage(); y = 20; }
+      doc.text(inv.folio, 14, y);
+      doc.text(inv.clientName.slice(0, 36), 50, y);
+      doc.text(inv.date, 130, y);
+      doc.text(inv.dueDate, 170, y);
+      doc.text(inv.status, 210, y);
+      doc.text(`${currency.symbol}${convertPrice(inv.total).toLocaleString()}`, 245, y);
+      y += 7;
+    });
+    const totalAll = filtered.reduce((s, i) => s + i.total, 0);
+    y += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total: ${formatPrice(totalAll)}`, 14, y);
+    doc.save(`facturas_${today}.pdf`);
+  };
+
+  // Factura individual en PDF
+  const downloadInvoicePDF = (inv: Invoice) => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.setTextColor(37, 99, 235);
+    doc.text('VoyageX', 14, 20);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.text('Agencia de Viajes · Av. Reforma 250, CDMX', 14, 27);
+
+    doc.setFontSize(12);
+    doc.text(`Factura ${inv.folio}`, 14, 42);
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${inv.date}`, 14, 50);
+    doc.text(`Vencimiento: ${inv.dueDate}`, 14, 56);
+    doc.text(`Cliente: ${inv.clientName}`, 14, 62);
+    doc.text(`Método de pago: ${inv.method}`, 14, 68);
+    doc.text(`Estado: ${inv.status}`, 14, 74);
+
+    doc.line(14, 82, 196, 82);
+    doc.text('Subtotal', 14, 92);
+    doc.text(formatPrice(inv.amount), 196, 92, { align: 'right' });
+    doc.text('IVA', 14, 100);
+    doc.text(formatPrice(inv.tax), 196, 100, { align: 'right' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total', 14, 110);
+    doc.text(formatPrice(inv.total), 196, 110, { align: 'right' });
+    doc.save(`factura_${inv.folio}.pdf`);
+  };
+
   const getStatusColor = (status: Invoice['status']) => {
     switch (status) {
       case 'pagada': return 'bg-green-100 text-green-700';
@@ -67,6 +132,9 @@ export default function ManageInvoices() {
         </div>
         <button onClick={exportToXLSX} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
           <Download size={20} /> Exportar Excel (.xlsx)
+        </button>
+        <button onClick={exportToPDF} className="bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-900 transition flex items-center gap-2">
+          <Download size={20} /> Exportar PDF
         </button>
       </div>
 
@@ -191,6 +259,9 @@ export default function ManageInvoices() {
                 <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(viewing.status)}`}>{viewing.status}</span>
               </div>
             </div>
+            <button onClick={() => downloadInvoicePDF(viewing)} className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+              <Download size={18} /> Descargar PDF
+            </button>
           </div>
         </div>
       )}
