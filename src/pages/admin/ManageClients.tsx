@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../data/store';
-import { Search, Mail, Phone, Calendar, DollarSign, Eye, X, Bus } from 'lucide-react';
+import { Search, Mail, Phone, Calendar, DollarSign, Eye, X, Bus, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 const SEATS_PER_ROW = 4; // 2 asientos + pasillo + 2 asientos
 
@@ -53,6 +54,43 @@ export default function ManageClients() {
   const seatLabel = (seatId: string) => {
     const [f, n] = seatId.split('-');
     return `Piso ${f} · Asiento ${n}`;
+  };
+
+  // Manifiesto: lista de pasajeros con su asiento, en PDF
+  const downloadManifest = () => {
+    const doc = new jsPDF();
+    const today = new Date().toISOString().slice(0, 10);
+    doc.setFontSize(16);
+    doc.text('Manifiesto de pasajeros', 14, 18);
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${today}    Capacidad: ${busLayout.floors * busLayout.seatsPerFloor} asientos (${busLayout.floors} piso${busLayout.floors > 1 ? 's' : ''})`, 14, 26);
+
+    const sorted = [...activeBookings].sort((a, b) => {
+      const [fa, na] = (a.seat || '99-999').split('-').map(Number);
+      const [fb, nb] = (b.seat || '99-999').split('-').map(Number);
+      return fa - fb || na - nb;
+    });
+
+    let y = 36;
+    doc.setFont('helvetica', 'bold');
+    ['Asiento', 'Pasajero', 'Teléfono', 'Paquete', 'Viajeros', 'Estado'].forEach((h, i) => {
+      doc.text(h, [14, 38, 98, 130, 170, 186][i], y);
+    });
+    doc.setFont('helvetica', 'normal');
+    y += 6;
+    sorted.forEach(b => {
+      if (y > 280) { doc.addPage(); y = 20; }
+      const seat = b.seat ? `P${b.seat.split('-')[0]} · ${b.seat.split('-')[1]}` : 'Sin asignar';
+      doc.text(seat, 14, y);
+      doc.text(b.clientName.slice(0, 26), 38, y);
+      doc.text(b.clientPhone || '', 98, y);
+      doc.text(b.packageName.slice(0, 22), 130, y);
+      doc.text(String(b.travelers), 170, y);
+      doc.text(b.status, 186, y);
+      y += 7;
+    });
+    if (sorted.length === 0) doc.text('No hay pasajeros registrados.', 14, y);
+    doc.save(`manifiesto_${today}.pdf`);
   };
 
   const filtered = clients.filter(c =>
@@ -114,6 +152,9 @@ export default function ManageClients() {
               <input type="number" min={SEATS_PER_ROW} max={200} step={SEATS_PER_ROW} value={busLayout.seatsPerFloor} onChange={e => handleCapacityChange(busLayout.floors, parseInt(e.target.value))} className="ml-2 w-24 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" />
             </label>
             <span className="text-sm text-gray-500">Capacidad total: {busLayout.floors * busLayout.seatsPerFloor}</span>
+            <button onClick={downloadManifest} className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+              <Download size={16} /> Manifiesto (PDF)
+            </button>
           </div>
         </div>
 
@@ -123,6 +164,11 @@ export default function ManageClients() {
               <div key={floor}>
                 <p className="text-sm font-semibold text-gray-600 mb-2">Piso {floor}</p>
                 <div className="inline-block border-2 border-gray-300 rounded-2xl p-4 bg-gray-50">
+                  {floor === 1 && (
+                    <div className="mb-3 flex justify-center">
+                      <span className="text-[11px] font-semibold text-gray-500 border border-dashed border-gray-400 rounded px-3 py-1">Frente · Conductor</span>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {seatRows(floor).map((row, r) => (
                       <div key={r} className="flex items-center gap-2">
@@ -151,6 +197,14 @@ export default function ManageClients() {
                         ))}
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    {busLayout.floors === 2 && (
+                      <span className="text-[11px] font-semibold text-gray-600 bg-yellow-100 rounded px-3 py-1">
+                        {floor === 1 ? 'Escalera ↑' : 'Escalera ↓'}
+                      </span>
+                    )}
+                    <span className="ml-auto text-[11px] font-semibold text-gray-600 bg-blue-100 rounded px-3 py-1">Baño</span>
                   </div>
                 </div>
               </div>
