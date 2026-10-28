@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore, currencies } from '../../data/store';
 import { DollarSign, Calendar, Users, MapPin, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 export default function Dashboard() {
-  const { bookings, destinations, packages, clients, settings } = useStore();
-  // Moneda para ver los ingresos; arranca con la moneda de la agencia y el admin puede cambiarla aquí
-  const [revenueCurrency, setRevenueCurrency] = useState<string>(settings.currency);
+  const { bookings, destinations, packages, clients, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency } = useStore();
 
+  // Todos los montos se convierten con la moneda seleccionada; los precios base están en MXN
   const totalRevenueMXN = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
-  const activeCurrency = currencies.find(c => c.code === revenueCurrency) || currencies[0];
-  const totalRevenue = Math.round(totalRevenueMXN * activeCurrency.rate);
+  const activeCurrency = getCurrentCurrency();
+  const totalRevenue = convertPrice(totalRevenueMXN);
   const confirmedBookings = bookings.filter(b => b.status === 'confirmada').length;
   const pendingBookings = bookings.filter(b => b.status === 'pendiente').length;
   const totalClients = clients.length;
@@ -22,7 +21,7 @@ export default function Dashboard() {
     { name: 'Canceladas', value: bookings.filter(b => b.status === 'cancelada').length, color: '#ef4444' },
   ];
 
-  const monthlyData = [
+  const monthlyDataMXN = [
     { month: 'Ene', ingresos: 12500, reservas: 8 },
     { month: 'Feb', ingresos: 18200, reservas: 12 },
     { month: 'Mar', ingresos: 15800, reservas: 10 },
@@ -30,6 +29,7 @@ export default function Dashboard() {
     { month: 'May', ingresos: 19600, reservas: 13 },
     { month: 'Jun', ingresos: 25800, reservas: 18 },
   ];
+  const monthlyData = monthlyDataMXN.map(m => ({ ...m, ingresos: convertPrice(m.ingresos) }));
 
   const topDestinations = destinations.slice(0, 5).map(d => ({
     name: d.name,
@@ -67,8 +67,8 @@ export default function Dashboard() {
             <p className="text-gray-500 text-sm">{stat.label}</p>
             {stat.label === 'Ingresos Totales' && (
               <select
-                value={revenueCurrency}
-                onChange={e => setRevenueCurrency(e.target.value)}
+                value={selectedCurrency}
+                onChange={e => setSelectedCurrency(e.target.value)}
                 className="mt-3 w-full border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 {currencies.map(c => (
@@ -90,7 +90,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
-              <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`, 'Ingresos']} />
+              <Tooltip formatter={(value: number) => [`${activeCurrency.symbol}${value.toLocaleString()}`, 'Ingresos']} />
               <Bar dataKey="ingresos" fill="url(#colorGradient)" radius={[4, 4, 0, 0]} />
               <defs>
                 <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
@@ -139,7 +139,7 @@ export default function Dashboard() {
                   <p className="text-xs text-gray-500">{b.packageName}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-sm text-blue-600">${b.totalPrice.toLocaleString()}</p>
+                  <p className="font-bold text-sm text-blue-600">{formatPrice(b.totalPrice)}</p>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     b.status === 'confirmada' ? 'bg-green-100 text-green-700' :
                     b.status === 'pendiente' ? 'bg-yellow-100 text-yellow-700' :

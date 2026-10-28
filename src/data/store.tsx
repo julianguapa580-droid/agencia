@@ -330,7 +330,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [departures, setDepartures] = useState<Departure[]>(initialDepartures);
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('MXN');
   const [settings, setSettings] = useState<AgencySettings>({
     name: 'VoyageX Travel Agency',
     email: 'info@voyagex.com',
@@ -343,6 +342,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     instagram: '@voyagex',
     twitter: '@voyagex',
   });
+  // La moneda activa arranca con la configurada por el admin; cambiarla en cualquier vista la actualiza en todo el sitio
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(settings.currency);
 
   const getCurrentCurrency = (): Currency => {
     return currencies.find(c => c.code === selectedCurrency) || currencies[0];
