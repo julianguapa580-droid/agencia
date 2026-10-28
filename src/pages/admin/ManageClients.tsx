@@ -1,11 +1,59 @@
 import React, { useState } from 'react';
 import { useStore } from '../../data/store';
-import { Search, Mail, Phone, Calendar, DollarSign, Eye, X } from 'lucide-react';
+import { Search, Mail, Phone, Calendar, DollarSign, Eye, X, Bus } from 'lucide-react';
+
+const SEATS_PER_ROW = 4; // 2 asientos + pasillo + 2 asientos
 
 export default function ManageClients() {
-  const { formatPrice, clients, bookings } = useStore();
+  const { formatPrice, clients, bookings, updateBooking, busLayout, setBusLayout } = useStore();
   const [search, setSearch] = useState('');
   const [viewing, setViewing] = useState<string | null>(null);
+  const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
+
+  // ---- Mapa de asientos ----
+  const seatCapacity = busLayout.seatsPerFloor;
+  const floorsArray = Array.from({ length: busLayout.floors }, (_, i) => i + 1);
+  const activeBookings = bookings.filter(b => b.status !== 'cancelada');
+  const occupantOf = (seatId: string) => activeBookings.find(b => b.seat === seatId);
+
+  const seatRows = (floor: number) => {
+    const rows: (number | null)[][] = [];
+    for (let start = 0; start < seatCapacity; start += SEATS_PER_ROW) {
+      const row: (number | null)[] = [];
+      for (let k = 0; k < SEATS_PER_ROW; k++) {
+        const n = start + k + 1;
+        row.push(n <= seatCapacity ? n : null);
+      }
+      rows.push(row);
+    }
+    return rows;
+  };
+
+  const handleCapacityChange = (floors: 1 | 2, seatsPerFloor: number) => {
+    const safe = Math.max(SEATS_PER_ROW, Math.min(200, seatsPerFloor || SEATS_PER_ROW));
+    // Libera asientos que quedan fuera de la nueva configuración
+    bookings.forEach(b => {
+      if (!b.seat) return;
+      const [f, n] = b.seat.split('-').map(Number);
+      if (f > floors || n > safe) updateBooking({ ...b, seat: undefined });
+    });
+    setBusLayout({ floors, seatsPerFloor: safe });
+  };
+
+  const assignSeat = (seatId: string, bookingId: string) => {
+    // Quita el asiento a quien lo tuviera
+    const current = occupantOf(seatId);
+    if (current && current.id !== bookingId) updateBooking({ ...current, seat: undefined });
+    if (bookingId) {
+      const target = bookings.find(b => b.id === bookingId);
+      if (target && target.seat !== seatId) updateBooking({ ...target, seat: seatId });
+    }
+  };
+
+  const seatLabel = (seatId: string) => {
+    const [f, n] = seatId.split('-');
+    return `Piso ${f} · Asiento ${n}`;
+  };
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) || c.email.toLowerCase().includes(search.toLowerCase())
@@ -48,6 +96,97 @@ export default function ManageClients() {
         <div className="relative">
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           <input type="text" placeholder="Buscar cliente..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+      </div>
+
+      {/* Mapa de asientos del autobús */}
+      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <h3 className="text-xl font-bold flex items-center gap-2"><Bus size={22} className="text-blue-600" /> Mapa de asientos</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-sm font-semibold">Pisos
+              <select value={busLayout.floors} onChange={e => handleCapacityChange(Number(e.target.value) as 1 | 2, busLayout.seatsPerFloor)} className="ml-2 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                <option value={1}>1 piso</option>
+                <option value={2}>2 pisos</option>
+              </select>
+            </label>
+            <label className="text-sm font-semibold">Asientos por piso
+              <input type="number" min={SEATS_PER_ROW} max={200} step={SEATS_PER_ROW} value={busLayout.seatsPerFloor} onChange={e => handleCapacityChange(busLayout.floors, parseInt(e.target.value))} className="ml-2 w-24 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+            </label>
+            <span className="text-sm text-gray-500">Capacidad total: {busLayout.floors * busLayout.seatsPerFloor}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 space-y-6">
+            {floorsArray.map(floor => (
+              <div key={floor}>
+                <p className="text-sm font-semibold text-gray-600 mb-2">Piso {floor}</p>
+                <div className="inline-block border-2 border-gray-300 rounded-2xl p-4 bg-gray-50">
+                  <div className="space-y-2">
+                    {seatRows(floor).map((row, r) => (
+                      <div key={r} className="flex items-center gap-2">
+                        {row.map((n, k) => (
+                          <React.Fragment key={k}>
+                            {k === 2 && <div className="w-6" />}
+                            {n === null ? (
+                              <div className="w-10 h-10" />
+                            ) : (() => {
+                              const seatId = `${floor}-${n}`;
+                              const occ = occupantOf(seatId);
+                              const isSel = selectedSeat === seatId;
+                              return (
+                                <button
+                                  onClick={() => setSelectedSeat(isSel ? null : seatId)}
+                                  title={occ ? `${occ.clientName} · ${occ.packageName}` : `Libre · ${seatLabel(seatId)}`}
+                                  className={`w-10 h-10 rounded-md text-xs font-bold transition border-2 ${
+                                    isSel ? 'ring-2 ring-blue-500' : ''
+                                  } ${occ ? 'bg-green-500 border-green-600 text-white' : 'bg-white border-gray-300 text-gray-500 hover:border-blue-400'}`}
+                                >
+                                  {n}
+                                </button>
+                              );
+                            })()}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="lg:w-80">
+            {selectedSeat ? (
+              <div className="border rounded-xl p-4">
+                <p className="font-bold mb-1">{seatLabel(selectedSeat)}</p>
+                <p className="text-xs text-gray-500 mb-3">
+                  {occupantOf(selectedSeat) ? `Ocupado por ${occupantOf(selectedSeat)!.clientName}` : 'Libre'}
+                </p>
+                <label className="block text-sm font-semibold mb-1">Asignar pasajero</label>
+                <select
+                  value={occupantOf(selectedSeat)?.id || ''}
+                  onChange={e => assignSeat(selectedSeat, e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">— Libre —</option>
+                  {activeBookings
+                    .filter(b => !b.seat || b.seat === selectedSeat)
+                    .map(b => (
+                      <option key={b.id} value={b.id}>{b.clientName} · {b.packageName}</option>
+                    ))}
+                </select>
+                <button onClick={() => setSelectedSeat(null)} className="mt-3 text-sm text-gray-500 hover:text-gray-700">Cerrar</button>
+              </div>
+            ) : (
+              <div className="border rounded-xl p-4 text-sm text-gray-500">
+                <p className="mb-2">Haz clic en un asiento para ver o asignar al pasajero.</p>
+                <p className="flex items-center gap-2"><span className="w-4 h-4 rounded bg-green-500 inline-block" /> Ocupado · <span className="w-4 h-4 rounded bg-white border border-gray-300 inline-block" /> Libre</p>
+                <p className="mt-3">Ocupados: {floorsArray.reduce((s, f) => s + seatRows(f).flat().filter(n => n !== null && occupantOf(`${f}-${n}`)).length, 0)} de {busLayout.floors * busLayout.seatsPerFloor}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

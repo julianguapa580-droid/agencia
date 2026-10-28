@@ -43,6 +43,12 @@ export interface Booking {
   createdAt: string;
   notes: string;
   paymentStatus: 'pendiente' | 'pagado' | 'parcial';
+  seat?: string; // Asiento asignado, formato "piso-número" (ej. "2-7")
+}
+
+export interface BusLayout {
+  floors: 1 | 2;
+  seatsPerFloor: number;
 }
 
 export interface Client {
@@ -288,6 +294,8 @@ interface StoreContextType {
   convertPrice: (priceMXN: number) => number;
   getCurrentCurrency: () => Currency;
   setIsAdmin: (v: boolean) => void;
+  busLayout: BusLayout;
+  setBusLayout: (layout: BusLayout) => void;
   addBooking: (booking: Booking) => void;
   updateBooking: (booking: Booking) => void;
   deleteBooking: (id: string) => void;
@@ -330,6 +338,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [departures, setDepartures] = useState<Departure[]>(initialDepartures);
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [busLayout, setBusLayout] = useState<BusLayout>({ floors: 1, seatsPerFloor: 40 });
   const [settings, setSettings] = useState<AgencySettings>({
     name: 'VoyageX Travel Agency',
     email: 'info@voyagex.com',
@@ -404,7 +413,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency, setIsAdmin,
+      destinations, packages, bookings, clients, promotions, blogPosts, employees, messages, departures, invoices, settings, isAdmin, selectedCurrency, setSelectedCurrency, formatPrice, convertPrice, getCurrentCurrency, setIsAdmin, busLayout, setBusLayout,
       addBooking, updateBooking, deleteBooking,
       addDestination, updateDestination, deleteDestination,
       addPackage, updatePackage, deletePackage,
