@@ -3,7 +3,7 @@ import { useStore, Departure } from '../../data/store';
 import { Plus, Edit2, Trash2, X, Calendar, Users, MapPin, DollarSign } from 'lucide-react';
 
 export default function ManageDepartures() {
-  const { departures, packages, addDeparture, updateDeparture, deleteDeparture } = useStore();
+  const { formatPrice, departures, packages, addDeparture, updateDeparture, deleteDeparture } = useStore();
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Departure | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -123,7 +123,7 @@ export default function ManageDepartures() {
                       <span className="flex items-center gap-1"><Calendar size={14} /> {dep.date}</span>
                       <span className="flex items-center gap-1"><Users size={14} /> {dep.spotsTaken}/{dep.spotsTotal} cupos</span>
                       <span className="flex items-center gap-1"><MapPin size={14} /> Guía: {dep.guide}</span>
-                      <span className="flex items-center gap-1"><DollarSign size={14} /> ${dep.price.toLocaleString()}/persona</span>
+                      <span className="flex items-center gap-1"><DollarSign size={14} /> {formatPrice(dep.price)}/persona</span>
                     </div>
                     <div className="mt-3">
                       <div className="flex justify-between text-xs mb-1">

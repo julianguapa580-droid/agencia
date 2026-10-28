@@ -3,7 +3,7 @@ import { useStore, TravelPackage } from '../../data/store';
 import { Plus, Edit2, Trash2, X, Search, ToggleLeft, ToggleRight } from 'lucide-react';
 
 export default function ManagePackages() {
-  const { packages, destinations, addPackage, updatePackage, deletePackage } = useStore();
+  const { formatPrice, packages, destinations, addPackage, updatePackage, deletePackage } = useStore();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<TravelPackage | null>(null);
   const [creating, setCreating] = useState(false);
@@ -99,7 +99,7 @@ export default function ManagePackages() {
                     <span className="text-xs px-3 py-1 rounded-full font-medium bg-blue-50 text-blue-700 capitalize">{pkg.category}</span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{pkg.duration}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-blue-600">${pkg.price.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-blue-600">{formatPrice(pkg.price)}</td>
                   <td className="px-6 py-4">
                     <button onClick={() => toggleAvailable(pkg)} className="text-gray-600 hover:text-blue-600 transition">
                       {pkg.available ? <ToggleRight size={28} className="text-green-500" /> : <ToggleLeft size={28} className="text-gray-400" />}

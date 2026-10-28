@@ -4,7 +4,7 @@ import { TrendingUp, DollarSign, Users, Calendar, ArrowUpRight, PieChart as PieI
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend } from 'recharts';
 
 export default function Reports() {
-  const { bookings, invoices, packages, employees, clients } = useStore();
+  const { formatPrice, bookings, invoices, packages, employees, clients } = useStore();
 
   const totalRevenue = invoices.reduce((s, i) => s + i.total, 0);
   const totalPaid = invoices.filter(i => i.status === 'pagada').reduce((s, i) => s + i.total, 0);
@@ -76,7 +76,7 @@ export default function Reports() {
             </div>
             <span className="flex items-center gap-1 text-sm font-semibold text-green-600"><ArrowUpRight size={16} /> +18.2%</span>
           </div>
-          <p className="text-3xl font-bold">${totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-bold">{formatPrice(totalRevenue)}</p>
           <p className="text-gray-500 text-sm">Ingresos Totales</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-md">
@@ -86,7 +86,7 @@ export default function Reports() {
             </div>
             <span className="flex items-center gap-1 text-sm font-semibold text-green-600"><ArrowUpRight size={16} /> +12.5%</span>
           </div>
-          <p className="text-3xl font-bold">${(totalRevenue * 0.6).toLocaleString()}</p>
+          <p className="text-3xl font-bold">{formatPrice((totalRevenue * 0.6))}</p>
           <p className="text-gray-500 text-sm">Ganancia Neta</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-md">
@@ -96,7 +96,7 @@ export default function Reports() {
             </div>
             <span className="flex items-center gap-1 text-sm font-semibold text-green-600"><ArrowUpRight size={16} /> +8.1%</span>
           </div>
-          <p className="text-3xl font-bold">${Math.round(avgTicket).toLocaleString()}</p>
+          <p className="text-3xl font-bold">{formatPrice(Math.round(avgTicket))}</p>
           <p className="text-gray-500 text-sm">Ticket Promedio</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-md">
@@ -120,7 +120,7 @@ export default function Reports() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
-              <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+              <Tooltip formatter={(value: number) => `${formatPrice(value)}`} />
               <Legend />
               <Area type="monotone" dataKey="ingresos" stackId="1" stroke="#3b82f6" fill="#93c5fd" />
               <Area type="monotone" dataKey="gastos" stackId="2" stroke="#ef4444" fill="#fca5a5" />
@@ -221,15 +221,15 @@ export default function Reports() {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-green-50 rounded-lg p-4">
               <p className="text-sm text-green-600 font-semibold">Total Cobrado</p>
-              <p className="text-2xl font-bold text-green-700">${totalPaid.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-green-700">{formatPrice(totalPaid)}</p>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4">
               <p className="text-sm text-yellow-600 font-semibold">Por Cobrar</p>
-              <p className="text-2xl font-bold text-yellow-700">${totalPending.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-yellow-700">{formatPrice(totalPending)}</p>
             </div>
             <div className="bg-blue-50 rounded-lg p-4">
               <p className="text-sm text-blue-600 font-semibold">Comisiones Pagadas</p>
-              <p className="text-2xl font-bold text-blue-700">${(totalPaid * 0.05).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-blue-700">{formatPrice((totalPaid * 0.05))}</p>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
               <p className="text-sm text-purple-600 font-semibold">Clientes Activos</p>

@@ -3,7 +3,7 @@ import { useStore, Destination } from '../../data/store';
 import { Plus, Edit2, Trash2, X, Star, Search } from 'lucide-react';
 
 export default function ManageDestinations() {
-  const { destinations, addDestination, updateDestination, deleteDestination } = useStore();
+  const { formatPrice, destinations, addDestination, updateDestination, deleteDestination } = useStore();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Destination | null>(null);
   const [creating, setCreating] = useState(false);
@@ -82,7 +82,7 @@ export default function ManageDestinations() {
               </div>
               <p className="text-gray-600 text-sm mb-3 line-clamp-2">{dest.description}</p>
               <div className="flex justify-between items-center">
-                <p className="text-blue-600 font-bold">Desde ${dest.priceFrom}</p>
+                <p className="text-blue-600 font-bold">Desde {formatPrice(dest.priceFrom)}</p>
                 <div className="flex gap-2">
                   <button onClick={() => openEdit(dest)} className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition"><Edit2 size={18} /></button>
                   <button onClick={() => setShowDeleteConfirm(dest.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 size={18} /></button>

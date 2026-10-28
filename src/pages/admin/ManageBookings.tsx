@@ -3,7 +3,7 @@ import { useStore, Booking } from '../../data/store';
 import { Search, Filter, Eye, Edit2, Trash2, Plus, X, Calendar, Users } from 'lucide-react';
 
 export default function ManageBookings() {
-  const { bookings, updateBooking, deleteBooking } = useStore();
+  const { formatPrice, bookings, updateBooking, deleteBooking } = useStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [editing, setEditing] = useState<Booking | null>(null);
@@ -78,7 +78,7 @@ export default function ManageBookings() {
                   <td className="px-6 py-4 text-sm">{booking.packageName}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{booking.startDate}</td>
                   <td className="px-6 py-4 text-sm">{booking.travelers}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-blue-600">${booking.totalPrice.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-blue-600">{formatPrice(booking.totalPrice)}</td>
                   <td className="px-6 py-4">
                     <span className={`text-xs px-3 py-1 rounded-full font-medium ${
                       booking.status === 'confirmada' ? 'bg-green-100 text-green-700' :
@@ -138,7 +138,7 @@ export default function ManageBookings() {
               <div className="pt-4 border-t flex justify-between items-center">
                 <div>
                   <p className="text-xs text-gray-500">Total</p>
-                  <p className="text-2xl font-bold text-blue-600">${viewing.totalPrice.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-blue-600">{formatPrice(viewing.totalPrice)}</p>
                 </div>
                 <span className={`text-sm px-4 py-2 rounded-full font-medium ${
                   viewing.status === 'confirmada' ? 'bg-green-100 text-green-700' :

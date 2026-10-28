@@ -3,7 +3,7 @@ import { useStore } from '../../data/store';
 import { Search, Mail, Phone, Calendar, DollarSign, Eye, X } from 'lucide-react';
 
 export default function ManageClients() {
-  const { clients, bookings } = useStore();
+  const { formatPrice, clients, bookings } = useStore();
   const [search, setSearch] = useState('');
   const [viewing, setViewing] = useState<string | null>(null);
 
@@ -35,11 +35,11 @@ export default function ManageClients() {
         </div>
         <div className="bg-white rounded-xl p-5 shadow-md">
           <p className="text-sm text-gray-500">Ingresos Totales</p>
-          <p className="text-3xl font-bold text-green-600">${clients.reduce((s, c) => s + c.totalSpent, 0).toLocaleString()}</p>
+          <p className="text-3xl font-bold text-green-600">{formatPrice(clients.reduce((s, c) => s + c.totalSpent, 0))}</p>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-md">
           <p className="text-sm text-gray-500">Promedio por Cliente</p>
-          <p className="text-3xl font-bold text-purple-600">${Math.round(clients.reduce((s, c) => s + c.totalSpent, 0) / clients.length).toLocaleString()}</p>
+          <p className="text-3xl font-bold text-purple-600">{formatPrice(Math.round(clients.reduce((s, c) => s + c.totalSpent, 0) / clients.length))}</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export default function ManageClients() {
                     <p className="text-sm flex items-center gap-1"><Phone size={14} className="text-gray-400" /> {client.phone}</p>
                   </td>
                   <td className="px-6 py-4 text-sm font-semibold">{client.bookings}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-green-600">${client.totalSpent.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-green-600">{formatPrice(client.totalSpent)}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{client.registeredAt}</td>
                   <td className="px-6 py-4">
                     <button onClick={() => setViewing(client.id)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
@@ -130,7 +130,7 @@ export default function ManageClients() {
               </div>
               <div className="bg-purple-50 rounded-lg p-3">
                 <p className="text-xs text-purple-600">Total Gastado</p>
-                <p className="font-bold text-lg">${selectedClient.totalSpent.toLocaleString()}</p>
+                <p className="font-bold text-lg">{formatPrice(selectedClient.totalSpent)}</p>
               </div>
             </div>
             {clientBookings.length > 0 && (
@@ -144,7 +144,7 @@ export default function ManageClients() {
                         <p className="text-xs text-gray-500">{b.startDate}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-sm text-blue-600">${b.totalPrice.toLocaleString()}</p>
+                        <p className="font-bold text-sm text-blue-600">{formatPrice(b.totalPrice)}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
                           b.status === 'confirmada' ? 'bg-green-100 text-green-700' :
                           b.status === 'pendiente' ? 'bg-yellow-100 text-yellow-700' :

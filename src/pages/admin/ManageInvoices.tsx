@@ -3,7 +3,7 @@ import { useStore, Invoice } from '../../data/store';
 import { FileText, Search, Download, Eye, DollarSign, CreditCard, CheckCircle, Clock, AlertTriangle, Printer } from 'lucide-react';
 
 export default function ManageInvoices() {
-  const { invoices, updateInvoice } = useStore();
+  const { formatPrice, invoices, updateInvoice } = useStore();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'pagada' | 'pendiente' | 'vencida'>('all');
   const [viewing, setViewing] = useState<Invoice | null>(null);
@@ -53,19 +53,19 @@ export default function ManageInvoices() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1"><CheckCircle size={18} /><span className="text-sm opacity-80">Cobrado</span></div>
-          <p className="text-2xl font-bold">${totalPaid.toLocaleString()}</p>
+          <p className="text-2xl font-bold">{formatPrice(totalPaid)}</p>
         </div>
         <div className="bg-gradient-to-r from-yellow-500 to-amber-600 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1"><Clock size={18} /><span className="text-sm opacity-80">Pendiente</span></div>
-          <p className="text-2xl font-bold">${totalPending.toLocaleString()}</p>
+          <p className="text-2xl font-bold">{formatPrice(totalPending)}</p>
         </div>
         <div className="bg-gradient-to-r from-red-500 to-rose-600 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1"><AlertTriangle size={18} /><span className="text-sm opacity-80">Vencido</span></div>
-          <p className="text-2xl font-bold">${totalOverdue.toLocaleString()}</p>
+          <p className="text-2xl font-bold">{formatPrice(totalOverdue)}</p>
         </div>
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1"><DollarSign size={18} /><span className="text-sm opacity-80">Total Facturado</span></div>
-          <p className="text-2xl font-bold">${invoices.reduce((s, i) => s + i.total, 0).toLocaleString()}</p>
+          <p className="text-2xl font-bold">{formatPrice(invoices.reduce((s, i) => s + i.total, 0))}</p>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function ManageInvoices() {
                   <td className="px-6 py-4 text-sm font-semibold">{inv.clientName}</td>
                   <td className="px-6 py-4 text-sm"><span className="flex items-center gap-1">{getMethodIcon(inv.method)} {inv.method}</span></td>
                   <td className="px-6 py-4 text-sm text-gray-500">{inv.date}</td>
-                  <td className="px-6 py-4 text-sm font-bold">${inv.total.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm font-bold">{formatPrice(inv.total)}</td>
                   <td className="px-6 py-4">
                     <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(inv.status)}`}>{inv.status}</span>
                   </td>
@@ -161,9 +161,9 @@ export default function ManageInvoices() {
                 </div>
               </div>
               <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm"><span>Subtotal:</span><span>${viewing.amount.toLocaleString()}</span></div>
-                <div className="flex justify-between text-sm"><span>IVA (16%):</span><span>${viewing.tax.toLocaleString()}</span></div>
-                <div className="flex justify-between text-lg font-bold pt-2 border-t"><span>Total:</span><span className="text-blue-600">${viewing.total.toLocaleString()} MXN</span></div>
+                <div className="flex justify-between text-sm"><span>Subtotal:</span><span>{formatPrice(viewing.amount)}</span></div>
+                <div className="flex justify-between text-sm"><span>IVA (16%):</span><span>{formatPrice(viewing.tax)}</span></div>
+                <div className="flex justify-between text-lg font-bold pt-2 border-t"><span>Total:</span><span className="text-blue-600">{formatPrice(viewing.total)}</span></div>
               </div>
               <div className="mt-4 pt-4 border-t flex justify-between items-center">
                 <span className="text-sm text-gray-500">Método de pago: {getMethodIcon(viewing.method)} {viewing.method}</span>

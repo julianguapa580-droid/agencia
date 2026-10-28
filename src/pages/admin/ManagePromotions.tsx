@@ -3,7 +3,7 @@ import { useStore, Promotion } from '../../data/store';
 import { Plus, Edit2, Trash2, X, Search, ToggleLeft, ToggleRight, Tag, Percent, DollarSign } from 'lucide-react';
 
 export default function ManagePromotions() {
-  const { promotions, packages, addPromotion, updatePromotion, deletePromotion } = useStore();
+  const { formatPrice, promotions, packages, addPromotion, updatePromotion, deletePromotion } = useStore();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Promotion | null>(null);
   const [creating, setCreating] = useState(false);
@@ -98,7 +98,7 @@ export default function ManagePromotions() {
                 <div className="flex flex-wrap items-center gap-3 mt-3">
                   <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-sm flex items-center gap-1">
                     {promo.type === 'percent' ? <Percent size={14} /> : <DollarSign size={14} />}
-                    {promo.type === 'percent' ? `${promo.discount}%` : `$${promo.discount}`} OFF
+                    {promo.type === 'percent' ? `${promo.discount}%` : formatPrice(promo.discount)} OFF
                   </span>
                   <code className="bg-gray-100 px-3 py-1 rounded font-mono font-bold text-blue-600">{promo.code}</code>
                   <span className="text-sm text-gray-500">📅 {promo.startDate} → {promo.endDate}</span>
