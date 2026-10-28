@@ -343,7 +343,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [departures, setDepartures] = useState<Departure[]>(initialDepartures);
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [busLayout, setBusLayout] = useState<BusLayout>({ floors: 1, seatsPerFloor: 40 });
+  const [busLayout, setBusLayoutState] = useState<BusLayout>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('voyagex_bus_layout') || 'null');
+      if (saved && (saved.floors === 1 || saved.floors === 2) && saved.seatsPerFloor > 0) return saved;
+    } catch {}
+    return { floors: 1, seatsPerFloor: 40 };
+  });
+  const setBusLayout = (layout: BusLayout) => {
+    setBusLayoutState(layout);
+    try { localStorage.setItem('voyagex_bus_layout', JSON.stringify(layout)); } catch {}
+  };
   // Icono y fondo se guardan en el navegador para que sigan al recargar la página
   const readStored = (key: string): string | null => {
     try { return localStorage.getItem(key); } catch { return null; }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../data/store';
-import { CheckCircle, Calendar, Users, CreditCard, Shield } from 'lucide-react';
+import { CheckCircle, Calendar, Users, CreditCard, Shield, Bus } from 'lucide-react';
+import SeatMap from '../components/SeatMap';
 
 export default function Booking() {
   const { packages, destinations, addBooking, formatPrice } = useStore();
@@ -207,6 +208,16 @@ export default function Booking() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+      {/* Croquis del autobús (solo lectura) */}
+      <section className="py-12 px-4 bg-gray-50">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3"><Bus className="text-blue-600" size={28} /> Distribución del autobús</h2>
+          <p className="text-gray-500 mb-8">Revisa la disposición de los asientos antes de reservar.</p>
+          <div className="bg-white rounded-2xl shadow-md p-6 overflow-x-auto">
+            <SeatMap />
           </div>
         </div>
       </section>
