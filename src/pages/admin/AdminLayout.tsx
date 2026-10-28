@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useStore } from '../../data/store';
+import Login from './Login';
 import { LayoutDashboard, MapPin, Package, Calendar, Users, Settings, LogOut, Plane, Menu, X, ChevronDown, Tag, FileText, Mail, CalendarDays, Receipt, BarChart3 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -15,8 +16,9 @@ export default function AdminLayout() {
     }
   }, [isAdmin, location.pathname, navigate]);
 
+  // Sin sesión, cualquier ruta de admin muestra el login (no las páginas internas)
   if (!isAdmin) {
-    return <Outlet />;
+    return <Login />;
   }
 
   const menuItems = [
