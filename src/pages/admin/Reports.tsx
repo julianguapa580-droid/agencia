@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useStore } from '../../data/store';
 import { Download } from 'lucide-react';
 import { TrendingUp, DollarSign, Users, Calendar, ArrowUpRight, PieChart as PieIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend } from 'recharts';
 
 export default function Reports() {
-  const { formatPrice, bookings, invoices, packages, employees, clients } = useStore();
+  const { formatPrice, getCurrentCurrency, bookings, invoices, packages, employees, clients } = useStore();
 
   const totalRevenue = invoices.reduce((s, i) => s + i.total, 0);
   const totalPaid = invoices.filter(i => i.status === 'pagada').reduce((s, i) => s + i.total, 0);
@@ -51,34 +51,91 @@ export default function Reports() {
     { name: 'Efectivo', value: 10, color: '#f59e0b' },
   ];
 
-  const reportRef = useRef<HTMLDivElement>(null);
-
-  // Exporta a PDF todo lo que se ve en la página de reportes (gráficas y tablas)
+  // Exporta a PDF todo el contenido de reportes como texto y tablas (sin capturar la pantalla)
   const exportReportPDF = async () => {
-    const el = reportRef.current;
-    if (!el) return;
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
-    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#f3f4f6', useCORS: true });
-    const img = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
-    const imgH = (canvas.height * pageW) / canvas.width;
-    let position = 0;
-    let heightLeft = imgH;
-    pdf.addImage(img, 'PNG', 0, position, pageW, imgH);
-    heightLeft -= pageH;
-    while (heightLeft > 0) {
-      position = heightLeft - imgH;
-      pdf.addPage();
-      pdf.addImage(img, 'PNG', 0, position, pageW, imgH);
-      heightLeft -= pageH;
+    try {
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageH = pdf.internal.pageSize.getHeight();
+      const today = new Date().toISOString().slice(0, 10);
+      let y = 20;
+
+      const ensure = (space: number) => {
+        if (y + space > pageH - 15) { pdf.addPage(); y = 20; }
+      };
+      const title = (text: string) => {
+        ensure(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(13);
+        pdf.setTextColor(37, 99, 235);
+        pdf.text(text, 14, y);
+        pdf.setTextColor(0, 0, 0);
+        y += 7;
+      };
+      const row = (cols: string[], xs: number[], bold = false) => {
+        ensure(7);
+        pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+        pdf.setFontSize(10);
+        cols.forEach((c, i) => pdf.text(c, xs[i], y));
+        y += 6;
+      };
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(18);
+      pdf.text('Reportes y Finanzas', 14, y);
+      y += 7;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+      pdf.text(`Fecha: ${today}    Moneda: ${getCurrentCurrency().code}`, 14, y);
+      y += 10;
+
+      title('Indicadores generales');
+      row(['Ingresos totales', formatPrice(totalRevenue)], [14, 110]);
+      row(['Cobrado', formatPrice(totalPaid)], [14, 110]);
+      row(['Pendiente / vencido', formatPrice(totalPending)], [14, 110]);
+      row(['Ticket promedio', formatPrice(Math.round(avgTicket))], [14, 110]);
+      row(['Reservas', String(bookings.length)], [14, 110]);
+      row(['Clientes', String(clients.length)], [14, 110]);
+      y += 4;
+
+      title('Ingresos mensuales');
+      const mxH = ['Mes', 'Ingresos', 'Gastos', 'Ganancia'];
+      const mxX = [14, 60, 110, 160];
+      row(mxH, mxX, true);
+      monthlyRevenue.forEach(m => row([m.month, formatPrice(m.ingresos), formatPrice(m.gastos), formatPrice(m.ganancia)], mxX));
+      y += 4;
+
+      title('Ventas por categoría');
+      row(['Categoría', '% de ventas'], [14, 110], true);
+      salesByCategory.forEach(c => row([c.name, `${c.value}%`], [14, 110]));
+      y += 4;
+
+      title('Embudo de conversión');
+      row(['Etapa', 'Cantidad'], [14, 110], true);
+      funnelData.forEach(f => row([f.stage, String(f.value)], [14, 110]));
+      y += 4;
+
+      title('Métodos de pago');
+      row(['Método', '% del total'], [14, 110], true);
+      paymentMethods.forEach(p => row([p.name, `${p.value}%`], [14, 110]));
+      y += 4;
+
+      title('Mejores vendedores');
+      if (topSellers.length === 0) row(['Sin datos'], [14]);
+      else {
+        row(['Empleado', 'Ventas'], [14, 110], true);
+        topSellers.forEach(e => row([e.name, formatPrice(e.sales)], [14, 110]));
+      }
+
+      pdf.save(`reportes_${today}.pdf`);
+    } catch (err) {
+      console.error('Error al generar el PDF de reportes', err);
+      alert('No se pudo generar el PDF. Revisa la consola para más detalles.');
     }
-    pdf.save(`reportes_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   return (
-    <div ref={reportRef}>
+    <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Reportes y Finanzas</h1>
