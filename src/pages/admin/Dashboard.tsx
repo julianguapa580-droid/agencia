@@ -1,12 +1,16 @@
-import React from 'react';
-import { useStore } from '../../data/store';
+import React, { useState } from 'react';
+import { useStore, currencies } from '../../data/store';
 import { DollarSign, Calendar, Users, MapPin, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 export default function Dashboard() {
-  const { bookings, destinations, packages, clients } = useStore();
+  const { bookings, destinations, packages, clients, settings } = useStore();
+  // Moneda para ver los ingresos; arranca con la moneda de la agencia y el admin puede cambiarla aquí
+  const [revenueCurrency, setRevenueCurrency] = useState<string>(settings.currency);
 
-  const totalRevenue = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
+  const totalRevenueMXN = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
+  const activeCurrency = currencies.find(c => c.code === revenueCurrency) || currencies[0];
+  const totalRevenue = Math.round(totalRevenueMXN * activeCurrency.rate);
   const confirmedBookings = bookings.filter(b => b.status === 'confirmada').length;
   const pendingBookings = bookings.filter(b => b.status === 'pendiente').length;
   const totalClients = clients.length;
@@ -44,7 +48,7 @@ export default function Dashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Ingresos Totales', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'from-green-500 to-green-600', change: '+12.5%', up: true },
+          { label: 'Ingresos Totales', value: `${activeCurrency.symbol}${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'from-green-500 to-green-600', change: '+12.5%', up: true },
           { label: 'Reservas', value: bookings.length, icon: Calendar, color: 'from-blue-500 to-blue-600', change: '+8.2%', up: true },
           { label: 'Clientes', value: totalClients, icon: Users, color: 'from-purple-500 to-purple-600', change: '+5.1%', up: true },
           { label: 'Destinos', value: destinations.length, icon: MapPin, color: 'from-orange-500 to-orange-600', change: '+2', up: true },
@@ -61,6 +65,17 @@ export default function Dashboard() {
             </div>
             <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
             <p className="text-gray-500 text-sm">{stat.label}</p>
+            {stat.label === 'Ingresos Totales' && (
+              <select
+                value={revenueCurrency}
+                onChange={e => setRevenueCurrency(e.target.value)}
+                className="mt-3 w-full border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                {currencies.map(c => (
+                  <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
+                ))}
+              </select>
+            )}
           </div>
         ))}
       </div>
