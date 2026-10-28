@@ -32,7 +32,6 @@ export default function AdminLayout() {
     { to: '/admin/salidas', icon: CalendarDays, label: 'Calendario' },
     { to: '/admin/facturas', icon: Receipt, label: 'Facturación' },
     { to: '/admin/reportes', icon: BarChart3, label: 'Reportes' },
-    { to: '/admin/configuracion', icon: Settings, label: 'Configuración' },
   ];
 
   const isActive = (path: string, exact?: boolean) => {
@@ -55,7 +54,7 @@ export default function AdminLayout() {
             </div>
           </Link>
         </div>
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-280px)]">
           {menuItems.map(item => (
             <Link
               key={item.to}

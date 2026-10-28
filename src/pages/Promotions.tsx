@@ -78,9 +78,14 @@ export default function Promotions() {
                         </div>
                       </div>
                     )}
-                    <Link to="/reservar" className="mt-4 block text-center bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transition">
-                      ¡Reservar Ahora!
-                    </Link>
+                    <div className="flex gap-2 mt-4">
+                      <Link to="/cotizador" className="flex-1 text-center border-2 border-red-500 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition">
+                        Cotizar
+                      </Link>
+                      <Link to="/reservar" className="flex-1 text-center bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transition">
+                        Reservar
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );

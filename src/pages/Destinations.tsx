@@ -80,9 +80,14 @@ export default function Destinations() {
                       <span className="text-xs text-gray-500">Desde</span>
                       <p className="text-2xl font-bold text-blue-600">{formatPrice(dest.priceFrom)}<span className="text-sm text-gray-500 font-normal">/persona</span></p>
                     </div>
-                    <Link to="/paquetes" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
-                      Ver Paquetes
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link to="/cotizador" className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition text-sm">
+                        Cotizar
+                      </Link>
+                      <Link to="/paquetes" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-sm">
+                        Ver Paquetes
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

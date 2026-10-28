@@ -255,10 +255,13 @@ export default function QuoteCalculator() {
                   </div>
                 )}
 
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <button onClick={() => setStep(3)} className="flex-1 border-2 border-gray-300 py-3 rounded-xl font-bold hover:bg-gray-50">← Modificar</button>
+                  <Link to="/contacto" className="flex-1 border-2 border-emerald-500 text-emerald-600 py-3 rounded-xl font-bold hover:bg-emerald-50 transition text-center">
+                    Consultar
+                  </Link>
                   <Link to="/reservar" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transition text-center flex items-center justify-center gap-2">
-                    <Check size={20} /> Reservar Ahora
+                    <Check size={20} /> Reservar
                   </Link>
                 </div>
               </div>
