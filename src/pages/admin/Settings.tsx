@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStore } from '../../data/store';
+import { useStore, currencies } from '../../data/store';
 import { Save, Building, Mail, Phone, MapPin, DollarSign, Percent } from 'lucide-react';
 
 export default function Settings() {
@@ -65,16 +65,12 @@ export default function Settings() {
               <div className="relative">
                 <DollarSign className="absolute left-3 top-3 text-gray-400" size={18} />
                 <select value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="MXN">MXN - Peso Mexicano</option>
-                  <option value="USD">USD - Dólar Americano</option>
-                  <option value="PEN">PEN - Sol Peruano</option>
-                  <option value="EUR">EUR - Euro</option>
-                  <option value="COP">COP - Peso Colombiano</option>
-                  <option value="ARS">ARS - Peso Argentino</option>
-                  <option value="CLP">CLP - Peso Chileno</option>
-                  <option value="BRL">BRL - Real Brasileño</option>
+                  {currencies.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
+                  ))}
                 </select>
               </div>
+              <p className="text-xs text-gray-500 mt-1">Esta será la moneda que verán los clientes por defecto en el sitio.</p>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Tasa de impuesto (%)</label>

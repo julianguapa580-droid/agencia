@@ -393,7 +393,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const addInvoice = (i: Invoice) => setInvoices(prev => [...prev, i]);
   const updateInvoice = (i: Invoice) => setInvoices(prev => prev.map(x => x.id === i.id ? i : x));
 
-  const updateSettings = (s: AgencySettings) => setSettings(s);
+  // Al guardar en el panel admin, la moneda elegida pasa a ser la moneda activa del sitio
+  const updateSettings = (s: AgencySettings) => {
+    setSettings(s);
+    if (currencies.some(c => c.code === s.currency)) {
+      setSelectedCurrency(s.currency);
+    }
+  };
 
   return (
     <StoreContext.Provider value={{
