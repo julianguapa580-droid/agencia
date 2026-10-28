@@ -3,7 +3,13 @@ import { useStore, Invoice } from '../../data/store';
 import { FileText, Search, Download, Eye, DollarSign, CreditCard, CheckCircle, Clock, AlertTriangle, Printer } from 'lucide-react';
 
 export default function ManageInvoices() {
-  const { formatPrice, convertPrice, getCurrentCurrency, invoices, updateInvoice } = useStore();
+  const { formatPrice, convertPrice, getCurrentCurrency, invoices, bookings, updateInvoice } = useStore();
+
+  // Origen y destino del pasajero, tomados de la reserva asociada a la factura
+  const routeOf = (inv: Invoice) => {
+    const b = bookings.find(x => x.id === inv.bookingId);
+    return { origen: b?.origin || '—', destino: b?.destination || '—' };
+  };
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'pagada' | 'pendiente' | 'vencida'>('all');
   const [viewing, setViewing] = useState<Invoice | null>(null);
@@ -27,6 +33,8 @@ export default function ManageInvoices() {
     const rows = filtered.map(inv => ({
       Folio: inv.folio,
       Cliente: inv.clientName,
+      Origen: routeOf(inv).origen,
+      Destino: routeOf(inv).destino,
       Fecha: inv.date,
       Vencimiento: inv.dueDate,
       Estado: inv.status,
@@ -54,19 +62,22 @@ export default function ManageInvoices() {
 
     let y = 36;
     doc.setFont('helvetica', 'bold');
-    ['Folio', 'Cliente', 'Fecha', 'Vencimiento', 'Estado', 'Total'].forEach((h, i) => {
-      doc.text(h, [14, 50, 130, 170, 210, 245][i], y);
+    const cols = [14, 44, 100, 135, 170, 205, 240, 265];
+    ['Folio', 'Cliente', 'Origen', 'Destino', 'Fecha', 'Vencimiento', 'Estado', 'Total'].forEach((h, i) => {
+      doc.text(h, cols[i], y);
     });
     doc.setFont('helvetica', 'normal');
     y += 6;
     filtered.forEach(inv => {
       if (y > 190) { doc.addPage(); y = 20; }
-      doc.text(inv.folio, 14, y);
-      doc.text(inv.clientName.slice(0, 36), 50, y);
-      doc.text(inv.date, 130, y);
-      doc.text(inv.dueDate, 170, y);
-      doc.text(inv.status, 210, y);
-      doc.text(`${currency.symbol}${convertPrice(inv.total).toLocaleString()}`, 245, y);
+      doc.text(inv.folio, cols[0], y);
+      doc.text(inv.clientName.slice(0, 30), cols[1], y);
+      doc.text(routeOf(inv).origen.slice(0, 16), cols[2], y);
+      doc.text(routeOf(inv).destino.slice(0, 16), cols[3], y);
+      doc.text(inv.date, cols[4], y);
+      doc.text(inv.dueDate, cols[5], y);
+      doc.text(inv.status, cols[6], y);
+      doc.text(`${currency.symbol}${convertPrice(inv.total).toLocaleString()}`, cols[7], y);
       y += 7;
     });
     const totalAll = filtered.reduce((s, i) => s + i.total, 0);
@@ -93,17 +104,19 @@ export default function ManageInvoices() {
     doc.text(`Fecha: ${inv.date}`, 14, 50);
     doc.text(`Vencimiento: ${inv.dueDate}`, 14, 56);
     doc.text(`Cliente: ${inv.clientName}`, 14, 62);
-    doc.text(`Método de pago: ${inv.method}`, 14, 68);
-    doc.text(`Estado: ${inv.status}`, 14, 74);
+    doc.text(`Origen: ${routeOf(inv).origen}`, 14, 68);
+    doc.text(`Destino: ${routeOf(inv).destino}`, 14, 74);
+    doc.text(`Método de pago: ${inv.method}`, 14, 80);
+    doc.text(`Estado: ${inv.status}`, 14, 86);
 
-    doc.line(14, 82, 196, 82);
-    doc.text('Subtotal', 14, 92);
-    doc.text(formatPrice(inv.amount), 196, 92, { align: 'right' });
-    doc.text('IVA', 14, 100);
-    doc.text(formatPrice(inv.tax), 196, 100, { align: 'right' });
+    doc.line(14, 94, 196, 94);
+    doc.text('Subtotal', 14, 104);
+    doc.text(formatPrice(inv.amount), 196, 104, { align: 'right' });
+    doc.text('IVA', 14, 112);
+    doc.text(formatPrice(inv.tax), 196, 112, { align: 'right' });
     doc.setFont('helvetica', 'bold');
-    doc.text('Total', 14, 110);
-    doc.text(formatPrice(inv.total), 196, 110, { align: 'right' });
+    doc.text('Total', 14, 122);
+    doc.text(formatPrice(inv.total), 196, 122, { align: 'right' });
     doc.save(`factura_${inv.folio}.pdf`);
   };
 
