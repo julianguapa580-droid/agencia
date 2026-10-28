@@ -163,6 +163,19 @@ export default function ManageBookings() {
               <button onClick={() => setEditing(null)} className="p-1 hover:bg-gray-100 rounded"><X size={20} /></button>
             </div>
             <p className="text-gray-600 mb-4">Reserva de <strong>{editing.clientName}</strong></p>
+            <div className="border rounded-xl p-4 mb-5 space-y-3">
+              <p className="font-semibold text-sm">Ruta del pasajero</p>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Origen</label>
+                <input type="text" value={editing.origin || ''} onChange={e => setEditing({ ...editing, origin: e.target.value })} placeholder="Ej. Piura" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Destino</label>
+                <input type="text" value={editing.destination} onChange={e => setEditing({ ...editing, destination: e.target.value })} placeholder="Ej. Lima" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <button onClick={() => { updateBooking(editing); setEditing(null); }} className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Guardar ruta</button>
+            </div>
+            <p className="text-sm font-semibold mb-2">Cambiar estado</p>
             <div className="space-y-3">
               {(['pendiente', 'confirmada', 'completada', 'cancelada'] as const).map(status => (
                 <button

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
 import { useStore, Invoice } from '../../data/store';
 import { FileText, Search, Download, Eye, DollarSign, CreditCard, CheckCircle, Clock, AlertTriangle, Printer } from 'lucide-react';
 
@@ -23,7 +21,8 @@ export default function ManageInvoices() {
   const markAsPaid = (inv: Invoice) => updateInvoice({ ...inv, status: 'pagada' });
 
   // Exporta las facturas visibles (con sus filtros) a Excel, en la moneda seleccionada
-  const exportToXLSX = () => {
+  const exportToXLSX = async () => {
+    const XLSX = await import('xlsx');
     const currency = getCurrentCurrency();
     const rows = filtered.map(inv => ({
       Folio: inv.folio,
@@ -43,7 +42,8 @@ export default function ManageInvoices() {
   };
 
   // Listado de facturas visibles en PDF, en la moneda seleccionada
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const { jsPDF } = await import('jspdf');
     const currency = getCurrentCurrency();
     const doc = new jsPDF({ orientation: 'landscape' });
     const today = new Date().toISOString().slice(0, 10);
@@ -77,7 +77,8 @@ export default function ManageInvoices() {
   };
 
   // Factura individual en PDF
-  const downloadInvoicePDF = (inv: Invoice) => {
+  const downloadInvoicePDF = async (inv: Invoice) => {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.setTextColor(37, 99, 235);

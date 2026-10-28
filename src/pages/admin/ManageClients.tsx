@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../data/store';
 import { Search, Mail, Phone, Calendar, DollarSign, Eye, X, Bus, Download } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 
 const SEATS_PER_ROW = 4; // 2 asientos + pasillo + 2 asientos
 
@@ -56,41 +55,69 @@ export default function ManageClients() {
     return `Piso ${f} · Asiento ${n}`;
   };
 
-  // Manifiesto: lista de pasajeros con su asiento, en PDF
-  const downloadManifest = () => {
-    const doc = new jsPDF();
+  // Manifiesto ordenado por asiento (sin asignar al final)
+  const manifestRows = () =>
+    [...activeBookings]
+      .sort((a, b) => {
+        const [fa, na] = (a.seat || '99-999').split('-').map(Number);
+        const [fb, nb] = (b.seat || '99-999').split('-').map(Number);
+        return fa - fb || na - nb;
+      })
+      .map(b => ({
+        asiento: b.seat ? `Piso ${b.seat.split('-')[0]} · ${b.seat.split('-')[1]}` : 'Sin asignar',
+        pasajero: b.clientName,
+        telefono: b.clientPhone || '',
+        origen: b.origin || '—',
+        destino: b.destination || '—',
+        paquete: b.packageName,
+        viajeros: b.travelers,
+        estado: b.status,
+      }));
+
+  // Manifiesto en PDF (horizontal, con origen y destino)
+  const downloadManifest = async () => {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ orientation: 'landscape' });
     const today = new Date().toISOString().slice(0, 10);
     doc.setFontSize(16);
     doc.text('Manifiesto de pasajeros', 14, 18);
     doc.setFontSize(10);
     doc.text(`Fecha: ${today}    Capacidad: ${busLayout.floors * busLayout.seatsPerFloor} asientos (${busLayout.floors} piso${busLayout.floors > 1 ? 's' : ''})`, 14, 26);
 
-    const sorted = [...activeBookings].sort((a, b) => {
-      const [fa, na] = (a.seat || '99-999').split('-').map(Number);
-      const [fb, nb] = (b.seat || '99-999').split('-').map(Number);
-      return fa - fb || na - nb;
-    });
-
+    const cols = [14, 48, 100, 135, 175, 210, 245, 265];
+    const heads = ['Asiento', 'Pasajero', 'Teléfono', 'Origen', 'Destino', 'Paquete', 'Viajeros', 'Estado'];
     let y = 36;
     doc.setFont('helvetica', 'bold');
-    ['Asiento', 'Pasajero', 'Teléfono', 'Paquete', 'Viajeros', 'Estado'].forEach((h, i) => {
-      doc.text(h, [14, 38, 98, 130, 170, 186][i], y);
-    });
+    heads.forEach((h, i) => doc.text(h, cols[i], y));
     doc.setFont('helvetica', 'normal');
     y += 6;
-    sorted.forEach(b => {
-      if (y > 280) { doc.addPage(); y = 20; }
-      const seat = b.seat ? `P${b.seat.split('-')[0]} · ${b.seat.split('-')[1]}` : 'Sin asignar';
-      doc.text(seat, 14, y);
-      doc.text(b.clientName.slice(0, 26), 38, y);
-      doc.text(b.clientPhone || '', 98, y);
-      doc.text(b.packageName.slice(0, 22), 130, y);
-      doc.text(String(b.travelers), 170, y);
-      doc.text(b.status, 186, y);
+    const rows = manifestRows();
+    rows.forEach(r => {
+      if (y > 190) { doc.addPage(); y = 20; }
+      [r.asiento, r.pasajero.slice(0, 28), r.telefono, r.origen.slice(0, 20), r.destino.slice(0, 20), r.paquete.slice(0, 22), String(r.viajeros), r.estado]
+        .forEach((v, i) => doc.text(v, cols[i], y));
       y += 7;
     });
-    if (sorted.length === 0) doc.text('No hay pasajeros registrados.', 14, y);
+    if (rows.length === 0) doc.text('No hay pasajeros registrados.', 14, y);
     doc.save(`manifiesto_${today}.pdf`);
+  };
+
+  // Manifiesto en Excel (.xlsx), con origen y destino
+  const downloadManifestXLSX = async () => {
+    const XLSX = await import('xlsx');
+    const sheet = XLSX.utils.json_to_sheet(manifestRows().map(r => ({
+      Asiento: r.asiento,
+      Pasajero: r.pasajero,
+      Teléfono: r.telefono,
+      Origen: r.origen,
+      Destino: r.destino,
+      Paquete: r.paquete,
+      Viajeros: r.viajeros,
+      Estado: r.estado,
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Manifiesto');
+    XLSX.writeFile(workbook, `manifiesto_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const filtered = clients.filter(c =>
@@ -154,6 +181,9 @@ export default function ManageClients() {
             <span className="text-sm text-gray-500">Capacidad total: {busLayout.floors * busLayout.seatsPerFloor}</span>
             <button onClick={downloadManifest} className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
               <Download size={16} /> Manifiesto (PDF)
+            </button>
+            <button onClick={downloadManifestXLSX} className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
+              <Download size={16} /> Manifiesto (Excel)
             </button>
           </div>
         </div>

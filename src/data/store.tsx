@@ -34,6 +34,7 @@ export interface Booking {
   clientPhone: string;
   packageId: string;
   packageName: string;
+  origin?: string; // Ciudad de origen del pasajero
   destination: string;
   travelers: number;
   startDate: string;
