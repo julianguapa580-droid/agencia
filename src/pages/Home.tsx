@@ -13,7 +13,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-cyan-900">
-          <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
+          <div className="absolute inset-0 opacity-40" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
           <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-transparent"></div>
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl">
@@ -104,7 +104,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredDestinations.map(dest => (
-              <div key={dest.id} className="group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 bg-white">
+              <div key={dest.id} className="tilt-card group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl bg-white">
                 <div className="relative h-56 overflow-hidden">
                   <img src={dest.image} alt={dest.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">

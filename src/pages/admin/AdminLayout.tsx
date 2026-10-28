@@ -42,7 +42,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="admin-3d min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-5 border-b border-blue-700">

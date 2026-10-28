@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+/* ---- Panel admin: profundidad 3D ---- */
+.admin-3d .bg-white.rounded-xl,
+.admin-3d .bg-white.rounded-2xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 14px 28px -10px rgba(15, 23, 42, 0.22);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.admin-3d .bg-white.rounded-xl:hover {
+  transform: perspective(900px) rotateX(3deg) translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 8px rgba(15, 23, 42, 0.08),
+    0 24px 40px -12px rgba(15, 23, 42, 0.3);
+}
+.admin-3d aside {
+  box-shadow: 8px 0 24px -6px rgba(15, 23, 42, 0.35);
+}
+.admin-3d button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* ---- Sitio público: tarjetas con inclinación 3D ---- */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.tilt-card:hover {
+  transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-6px);
+}
