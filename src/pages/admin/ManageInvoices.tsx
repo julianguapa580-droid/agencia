@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import { useStore, Invoice } from '../../data/store';
 import { FileText, Search, Download, Eye, DollarSign, CreditCard, CheckCircle, Clock, AlertTriangle, Printer } from 'lucide-react';
 
 export default function ManageInvoices() {
-  const { formatPrice, invoices, updateInvoice } = useStore();
+  const { formatPrice, convertPrice, getCurrentCurrency, invoices, updateInvoice } = useStore();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'pagada' | 'pendiente' | 'vencida'>('all');
   const [viewing, setViewing] = useState<Invoice | null>(null);
@@ -19,6 +20,26 @@ export default function ManageInvoices() {
   const totalOverdue = invoices.filter(i => i.status === 'vencida').reduce((s, i) => s + i.total, 0);
 
   const markAsPaid = (inv: Invoice) => updateInvoice({ ...inv, status: 'pagada' });
+
+  // Exporta las facturas visibles (con sus filtros) a Excel, en la moneda seleccionada
+  const exportToXLSX = () => {
+    const currency = getCurrentCurrency();
+    const rows = filtered.map(inv => ({
+      Folio: inv.folio,
+      Cliente: inv.clientName,
+      Fecha: inv.date,
+      Vencimiento: inv.dueDate,
+      Estado: inv.status,
+      Método: inv.method,
+      [`Subtotal (${currency.code})`]: convertPrice(inv.amount),
+      [`IVA (${currency.code})`]: convertPrice(inv.tax),
+      [`Total (${currency.code})`]: convertPrice(inv.total),
+    }));
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Facturas');
+    XLSX.writeFile(workbook, `facturas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
 
   const getStatusColor = (status: Invoice['status']) => {
     switch (status) {
@@ -44,8 +65,8 @@ export default function ManageInvoices() {
           <h1 className="text-3xl font-bold text-gray-900">Facturación</h1>
           <p className="text-gray-500">{invoices.length} facturas emitidas</p>
         </div>
-        <button className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-          <Download size={20} /> Exportar Reporte
+        <button onClick={exportToXLSX} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+          <Download size={20} /> Exportar Excel (.xlsx)
         </button>
       </div>
 
