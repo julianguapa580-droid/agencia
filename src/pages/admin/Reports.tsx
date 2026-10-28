@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useStore } from '../../data/store';
+import { Download } from 'lucide-react';
 import { TrendingUp, DollarSign, Users, Calendar, ArrowUpRight, PieChart as PieIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend } from 'recharts';
 
@@ -50,14 +51,43 @@ export default function Reports() {
     { name: 'Efectivo', value: 10, color: '#f59e0b' },
   ];
 
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  // Exporta a PDF todo lo que se ve en la página de reportes (gráficas y tablas)
+  const exportReportPDF = async () => {
+    const el = reportRef.current;
+    if (!el) return;
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#f3f4f6', useCORS: true });
+    const img = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgH = (canvas.height * pageW) / canvas.width;
+    let position = 0;
+    let heightLeft = imgH;
+    pdf.addImage(img, 'PNG', 0, position, pageW, imgH);
+    heightLeft -= pageH;
+    while (heightLeft > 0) {
+      position = heightLeft - imgH;
+      pdf.addPage();
+      pdf.addImage(img, 'PNG', 0, position, pageW, imgH);
+      heightLeft -= pageH;
+    }
+    pdf.save(`reportes_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
-    <div>
+    <div ref={reportRef}>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Reportes y Finanzas</h1>
           <p className="text-gray-500">Análisis detallado del rendimiento de la agencia</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={exportReportPDF} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+            <Download size={16} /> Exportar PDF
+          </button>
           <select className="border rounded-lg px-4 py-2 text-sm">
             <option>Últimos 6 meses</option>
             <option>Este año</option>
